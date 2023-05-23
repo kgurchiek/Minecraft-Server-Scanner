@@ -10,7 +10,7 @@ async function fullPort(port) {
 
   masscanProcess.on('exit', async (code, signal) => {
     console.log('Masscan finished.');
-    await save;
+    await save();
     knownIps();
   });
 }
@@ -40,30 +40,32 @@ async function knownIps() {
 
       masscanProcess.on('exit', async (code, signal) => {
         console.log('Masscan finished.');
-        await save;
+        await save();
       }); 
     });
   });
 }
 
-const save = new Promise(resolve => {
-  const scan = require('./masscan.json');
-  
-  var buffer = Buffer.alloc(0);
-  for (const obj of scan) {
-    for (const port of obj.ports) {
-      if (port.reason != "syn-ack") {
-        const splitIP = obj.ip.split('.')
-        buffer = Buffer.concat([
-          buffer,
-          Buffer.from([splitIP[0], splitIP[1], splitIP[2], splitIP[3], Math.floor(port.port / 256), port.port % 256])
-        ]);
+const save = function() {
+    return new Promise(resolve => {
+    const scan = require('./masscan.json');
+    
+    var buffer = Buffer.alloc(0);
+    for (const obj of scan) {
+      for (const port of obj.ports) {
+        if (port.reason != "syn-ack") {
+          const splitIP = obj.ip.split('.')
+          buffer = Buffer.concat([
+            buffer,
+            Buffer.from([splitIP[0], splitIP[1], splitIP[2], splitIP[3], Math.floor(port.port / 256), port.port % 256])
+          ]);
+        }
       }
     }
-  }
-  fs.writeFileSync('./ips', buffer);
+    fs.writeFileSync('./ips', buffer);
 
-  resolve();
-});
+    resolve();
+  });
+}
 
 fullPort(25565);
