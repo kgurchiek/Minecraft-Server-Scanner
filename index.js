@@ -14,7 +14,7 @@ async function fullPort(port) {
 
   masscanProcess.on('exit', async (code, signal) => {
     console.log('Masscan finished.');
-    await save();
+    await save;
     knownIps();
   });
 }
@@ -56,6 +56,7 @@ const save = new Promise(resolve => {
       ]);
     }
   }
+  fs.writeFileSync('./ips', buffer);
 
   resolve();
 });
