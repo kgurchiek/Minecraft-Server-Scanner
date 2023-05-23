@@ -2,11 +2,9 @@ const fs = require('fs');
 const { exec } = require('child_process');
 
 async function fullPort(port) {
-  const masscanProcess = exec(`sudo masscan -p ${port} 0.0.0.0/8 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`);
-
-  masscanProcess.stdout.on('data', (data) => {
-    console.log(data);
-  });
+  exec(`sudo masscan -p ${port} 0.0.0.0/0 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`, (error, stdout, stderr) => {
+    console.log(stdout);
+  }); 
 
   masscanProcess.on('exit', async (code, signal) => {
     console.log('Masscan finished.');
