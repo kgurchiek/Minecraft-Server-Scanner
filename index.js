@@ -40,10 +40,6 @@ async function knownIps() {
     });
   });
 }
-(async () => {
-  await save;
-  knownIps();
-})();
 
 const save = new Promise(resolve => {
   const scan = require('./masscan.json');
@@ -64,3 +60,8 @@ const save = new Promise(resolve => {
 
   resolve();
 });
+
+(async () => {
+  await save;
+  knownIps();
+})();
