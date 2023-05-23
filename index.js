@@ -32,14 +32,13 @@ async function knownIps() {
       console.log(`size: ${size}`);
   
       for (var i = 0; i < buffer.length; i += 6) {
-        if (i % 10000 == 0) console.log(`${Math.floor(i/size * 100)}%`)
         if (ips != '') ips += ',';
         ips += `${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}`;
       }
+
+      console.log(`sudo masscan -p 1025-65535 ${ips} --rate=100000 -oJ masscan.json`);
     });
   });
-  
-  console.log(`sudo masscan -p 1025-65535 ${ips} --rate=100000 -oJ masscan.json`)
 }
 knownIps();
 
