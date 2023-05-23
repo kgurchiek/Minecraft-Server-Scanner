@@ -66,7 +66,7 @@ async function knownIps() {
   });
 }
 
-const save = function() {
+function save() {
     return new Promise(resolve => {
     const scan = require('./masscan.json');
     
@@ -88,7 +88,7 @@ const save = function() {
   });
 }
 
-const save2 = function() {
+function save2() {
   return new Promise(resolve => {
   const scan = require('./masscan.json');
   
