@@ -39,7 +39,7 @@ async function knownIps() {
     });
   });
   
-  console.log(`sudo masscan -p ${port} 0.0.0.0/0 --rate=100000 -oJ masscan.json`)
+  console.log(`sudo masscan -p 1025-65535 ${ips} --rate=100000 -oJ masscan.json`)
 }
 knownIps();
 
