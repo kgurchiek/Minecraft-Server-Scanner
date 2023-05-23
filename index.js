@@ -66,7 +66,4 @@ const save = new Promise(resolve => {
   resolve();
 });
 
-(async () => {
-  await save;
-  fullPort(25565);
-})();
+fullPort(25565);
