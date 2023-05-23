@@ -14,9 +14,11 @@ async function fullPort(port) {
     console.error(data.toString());
   });
 
-  childProcess.on('close', (code) => {
+  childProcess.on('close', async (code) => {
     if (code === 0) {
-      console.log('done');
+      console.log('Masscan finished.');
+      await save();
+      knownIps();
     } else {
       console.error(`Command exited with code ${code}`);
     }
@@ -42,14 +44,26 @@ async function knownIps() {
 
       const masscanProcess = exec(`sudo masscan -p 1025-65535 ${ips} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`);
 
-      masscanProcess.stdout.on('data', (data) => {
-        console.log(data);
+      const childProcess = spawn('sh', ['-c', `sudo masscan -p ${port} 0.0.0.0/0 --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
+
+      childProcess.stdout.on('data', (data) => {
+        // Process the output as needed
+        console.log(data.toString());
       });
 
-      masscanProcess.on('exit', async (code, signal) => {
-        console.log('Masscan finished.');
-        await save();
-      }); 
+      childProcess.stderr.on('data', (data) => {
+        // Handle any error output
+        console.error(data.toString());
+      });
+
+      childProcess.on('close', async (code) => {
+        if (code === 0) {
+          console.log('Masscan finished.');
+          await save2();
+        } else {
+          console.error(`Command exited with code ${code}`);
+        }
+      });
     });
   });
 }
@@ -74,6 +88,28 @@ const save = function() {
 
     resolve();
   });
+}
+
+const save2 = function() {
+  return new Promise(resolve => {
+  const scan = require('./masscan.json');
+  
+  var buffer = Buffer.alloc(0);
+  for (const obj of scan) {
+    for (const port of obj.ports) {
+      if (port.reason != "syn-ack") {
+        const splitIP = obj.ip.split('.')
+        buffer = Buffer.concat([
+          buffer,
+          Buffer.from([splitIP[0], splitIP[1], splitIP[2], splitIP[3], Math.floor(port.port / 256), port.port % 256])
+        ]);
+      }
+    }
+  }
+  fs.writeFileSync('./ips2', buffer);
+
+  resolve();
+});
 }
 
 fullPort(25565);
