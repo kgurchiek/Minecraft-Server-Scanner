@@ -1,17 +1,25 @@
 const fs = require('fs');
-const { exec } = require('child_process');
+const { spawn } = require('child_process');
 
 async function fullPort(port) {
-  const masscanProcess = exec(`sudo masscan -p ${port} 0.0.0.0/0 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`);
+  const childProcess = spawn('sh', ['-c', `sudo masscan -p ${port} 0.0.0.0/0 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
 
-  masscanProcess.stdout.on('data', (data) => {
-    console.log(data);
+  childProcess.stdout.on('data', (data) => {
+    // Process the output as needed
+    console.log(data.toString());
   });
 
-  masscanProcess.on('exit', async (code, signal) => {
-    console.log('Masscan finished.');
-    await save();
-    knownIps();
+  childProcess.stderr.on('data', (data) => {
+    // Handle any error output
+    console.error(data.toString());
+  });
+
+  childProcess.on('close', (code) => {
+    if (code === 0) {
+      console.log('done');
+    } else {
+      console.error(`Command exited with code ${code}`);
+    }
   });
 }
 
