@@ -8,10 +8,6 @@ async function fullPort(port) {
     console.log(data);
   });
 
-  masscanProcess.stderr.on('data', (data) => {
-    console.error(data);
-  });
-
   masscanProcess.on('exit', async (code, signal) => {
     console.log('Masscan finished.');
     await save;
@@ -36,7 +32,16 @@ async function knownIps() {
         ips += `${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}`;
       }
 
-      console.log(`sudo masscan -p 1025-65535 ${ips} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`);
+      const masscanProcess = exec(`sudo masscan -p 1025-65535 ${ips} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`);
+
+      masscanProcess.stdout.on('data', (data) => {
+        console.log(data);
+      });
+
+      masscanProcess.on('exit', async (code, signal) => {
+        console.log('Masscan finished.');
+        await save;
+      }); 
     });
   });
 }
@@ -63,5 +68,5 @@ const save = new Promise(resolve => {
 
 (async () => {
   await save;
-  knownIps();
+  fullPort(25565);
 })();
