@@ -44,7 +44,7 @@ async function knownIps() {
 
       fs.writeFile('./includeFile.txt', ips, function (err) {
         if (err) console.error(err);
-        const childProcess = spawn('sh', ['-c', `sudo masscan -p 25500-256000 --include-file includeFile.txt --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
+        const childProcess = spawn('sh', ['-c', `sudo masscan -p 25500-25600 --include-file includeFile.txt --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
 
         childProcess.stdout.on('data', (data) => {
           // Process the output as needed
