@@ -42,26 +42,28 @@ async function knownIps() {
         ips += `${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}`;
       }
 
-      fs.writeFileSync('./includeFile.txt', ips);
-      const childProcess = spawn('sh', ['-c', `sudo masscan -p 25500-256000 --include-file includeFile.txt --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
+      fs.writeFile('./includeFile.txt', ips, function (err) {
+        if (err) console.error(err);
+        const childProcess = spawn('sh', ['-c', `sudo masscan -p 25500-256000 --include-file includeFile.txt --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
 
-      childProcess.stdout.on('data', (data) => {
-        // Process the output as needed
-        console.log(data.toString());
-      });
+        childProcess.stdout.on('data', (data) => {
+          // Process the output as needed
+          console.log(data.toString());
+        });
 
-      childProcess.stderr.on('data', (data) => {
-        // Handle any error output
-        console.error(data.toString());
-      });
+        childProcess.stderr.on('data', (data) => {
+          // Handle any error output
+          console.error(data.toString());
+        });
 
-      childProcess.on('close', async (code) => {
-        if (code === 0) {
-          console.log('Masscan finished.');
-          await save2();
-        } else {
-          console.error(`Command exited with code ${code}`);
-        }
+        childProcess.on('close', async (code) => {
+          if (code === 0) {
+            console.log('Masscan finished.');
+            await save2();
+          } else {
+            console.error(`Command exited with code ${code}`);
+          }
+        });
       });
     });
   });
