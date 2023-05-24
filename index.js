@@ -42,7 +42,7 @@ async function knownIps() {
         ips += `${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}`;
       }
 
-      const childProcess = spawn('sh', ['-c', `sudo masscan -p ${port} 0.0.0.0/0 --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
+      const childProcess = spawn('sh', ['-c', `sudo masscan -p 25500-256000 ${ips} --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
 
       childProcess.stdout.on('data', (data) => {
         // Process the output as needed
