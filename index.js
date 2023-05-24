@@ -85,7 +85,9 @@ function save() {
         }
       }
     }
-    fs.writeFileSync('./ips', buffer);
+    fs.writeFile('./ips', buffer,  (err) => {
+      console.log(err);
+    });
 
     resolve();
   });
@@ -107,7 +109,9 @@ function save2() {
       }
     }
   }
-  fs.writeFileSync('./ips2', buffer);
+  fs.writeFile('./ips2', buffer, (err) => {
+    console.log(err);
+  });
 
   resolve();
 });
