@@ -17,7 +17,7 @@ function save2() {
     }
   }
   fs.writeFile('./ips2', buffer, (err) => {
-    console.log(err);
+    if (err) console.log(err);
   });
 
   resolve();
