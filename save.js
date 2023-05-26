@@ -22,4 +22,8 @@ function save() {
 });
 }
 
-save();
+(async () => {
+  console.log('Saving...');
+  await save();
+  console.log('Saved.');
+})();
