@@ -1,3 +1,6 @@
+const fs = require('fs');
+const { spawn } = require('child_process');
+
 async function knownIps() {
   ips = '';
   fs.open('ips', 'r', function(status, fd) {
@@ -32,7 +35,7 @@ async function knownIps() {
         childProcess.on('close', async (code) => {
           if (code === 0) {
             console.log('Masscan finished.');
-            await save2();
+            //await save2();
           } else {
             console.error(`Command exited with code ${code}`);
           }
