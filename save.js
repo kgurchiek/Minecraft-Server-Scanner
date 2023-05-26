@@ -22,4 +22,4 @@ function save() {
 });
 }
 
-save1();
+save();
