@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 function save2() {
   return new Promise(resolve => {
   const scan = require('./masscan2.json');
