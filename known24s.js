@@ -15,7 +15,7 @@ async function known24s() {
 
       for (var i = 0; i < buffer.length; i += 6) ips[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.0/24`] = 0;
 
-      fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ips)).replaceAll('[', '').replaceAll(']', ''), function (err) {
+      fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ips)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''), function (err) {
         if (err) console.error(err);
         const childProcess = spawn('sh', ['-c', `sudo masscan -p 25500-25600 --include-file includeFile.txt --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan3.json`]);
 
