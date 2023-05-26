@@ -1,31 +1,42 @@
 const fs = require('fs');
+const readline = require('readline');
 
 function save() {
   return new Promise(resolve => {
-  const scan = require('./masscan.json');
-  
-  var buffer = Buffer.alloc(0);
-  for (const obj of scan) {
-    for (const port of obj.ports) {
-      if (port.reason != "syn-ack") {
-        const splitIP = obj.ip.split('.')
-        buffer = Buffer.concat([
-          buffer,
-          Buffer.from([splitIP[0], splitIP[1], splitIP[2], splitIP[3], Math.floor(port.port / 256), port.port % 256])
-        ]);
+    const fileStream = fs.createReadStream('./masscan.json');
+    const writeStream = fs.createWriteStream('./ips');
+
+    const rl = readline.createInterface({
+      input: fileStream,
+      crlfDelay: Infinity
+    });
+    var i = 0;
+    rl.on('line', line => {
+      if (i % 100000 == 0) console.log(i);
+      i++;
+      if (line.startsWith('{')) {
+        const obj = JSON.parse(line);
+        for (const port of obj.ports) {
+          if (port.reason !== "syn-ack") {
+            const splitIP = obj.ip.split('.');
+            const buffer = Buffer.from([
+              parseInt(splitIP[0]),
+              parseInt(splitIP[1]),
+              parseInt(splitIP[2]),
+              parseInt(splitIP[3]),
+              Math.floor(port.port / 256),
+              port.port % 256
+            ]);
+            writeStream.write(buffer);
+          }
+        }
       }
-    }
-  }
-  fs.writeFile('./ips', buffer,  (err) => {
-    if (err) console.log(err);
+    });
+
+    rl.on('close', () => {
+      console.log(i);
+      writeStream.end();
+      resolve();
+    });
   });
-
-  resolve();
-});
 }
-
-(async () => {
-  console.log('Saving...');
-  await save();
-  console.log('Saved.');
-})();
