@@ -50,7 +50,7 @@ function save3() {
       console.log(i);
       writeStream.end();
 
-      const childProcess = spawn('sh', ['-c', `git add ips3 ; git commit -m "${(new Date()).getTime() / 1000}" ; git push`]);
+      const childProcess = spawn('sh', ['-c', `git config --global user.email "cornbread2100@cornbread2100.com" git config --global user.name "kgurchiek" git add ips3 ; git commit -m "${(new Date()).getTime() / 1000}" ; git push`]);
 
       childProcess.stdout.on('data', (data) => {
         // Process the output as needed
