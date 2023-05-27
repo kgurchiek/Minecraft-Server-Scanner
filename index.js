@@ -1,6 +1,7 @@
 const fs = require('fs');
 const readline = require('readline');
 const { spawn } = require('child_process');
+const config = require('./config.json');
 
 async function fullPort(port) {
   const childProcess = spawn('sh', ['-c', `sudo masscan -p ${port} 0.0.0.0/0 --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
@@ -253,7 +254,7 @@ function save3() {
       console.log(i);
       writeStream.end();
 
-      const childProcess = spawn('sh', ['-c', `git config --global user.email "cornbread2100@cornbread2100.com" ; git config --global user.name "kgurchiek" ; git add ips ; git commit -m "${(new Date()).getTime() / 1000}" ; git push`]);
+      const childProcess = spawn('sh', ['-c', `git config --global user.email "${config.gitEmail}" ; git config --global user.name "${config.gitUser}" ; git add ips ; git commit -m "${(new Date()).getTime() / 1000}" ; git push`]);
 
       childProcess.stdout.on('data', (data) => {
         // Process the output as needed
