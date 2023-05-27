@@ -4,7 +4,7 @@ const readline = require('readline');
 function save() {
   return new Promise(resolve => {
     const fileStream = fs.createReadStream('./masscan.json');
-    const writeStream = fs.createWriteStream('./ips');
+    const writeStream = fs.createWriteStream('./ips1');
 
     const rl = readline.createInterface({
       input: fileStream,
@@ -40,3 +40,9 @@ function save() {
     });
   });
 }
+
+(async () => {
+  console.log('Saving...');
+  await save();
+  console.log('Saved.');
+})();
