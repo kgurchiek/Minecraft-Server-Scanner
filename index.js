@@ -28,12 +28,12 @@ async function fullPort(port) {
 
 async function known24s() {
   ips = {};
-  fs.open('ips', 'r', function(status, fd) {
+  fs.open('ips1', 'r', function(status, fd) {
     if (status) {
       console.log(status.message);
       return;
     }
-    const size = fs.statSync('ips').size;
+    const size = fs.statSync('ips1').size;
     var buffer = Buffer.alloc(size);
     fs.read(fd, buffer, 0, buffer.length, 0, function(err, num) {
       console.log(`size: ${size}`);
