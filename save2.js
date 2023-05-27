@@ -6,6 +6,18 @@ function save2() {
     const fileStream = fs.createReadStream('./masscan2.json');
     const writeStream = fs.createWriteStream('./ips2');
 
+    fs.open('ips', 'r', function(status, fd) {
+      if (status) {
+        console.log(status.message);
+        return;
+      }
+      const size = fs.statSync('ips').size;
+      var buffer = Buffer.alloc(size);
+      fs.read(fd, buffer, 0, buffer.length, 0, function(err, num) {
+        writeStream.write(buffer);
+      })
+    })
+
     const rl = readline.createInterface({
       input: fileStream,
       crlfDelay: Infinity
