@@ -35,7 +35,7 @@ async function knownIps() {
         childProcess.on('close', async (code) => {
           if (code === 0) {
             console.log('Masscan finished.');
-            //await save2();
+            //await save3();
           } else {
             console.error(`Command exited with code ${code}`);
           }
