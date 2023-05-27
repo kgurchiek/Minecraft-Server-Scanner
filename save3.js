@@ -48,7 +48,25 @@ function save3() {
     rl.on('close', () => {
       console.log(i);
       writeStream.end();
-      resolve();
+
+      const childProcess = spawn('sh', ['-c', `git add ips3 ; git commit -m "${(new Date()).getTime() / 1000}" ; git push`]);
+
+      childProcess.stdout.on('data', (data) => {
+        // Process the output as needed
+        console.log(data.toString());
+      });
+
+      childProcess.stderr.on('data', (data) => {
+        // Handle any error output
+        console.error(data.toString());
+      });
+
+      childProcess.on('close', async (code) => {
+        if (code != 0) {
+          console.error(`Command exited with code ${code}`);
+        }
+        resolve();
+      });
     });
   });
 }
