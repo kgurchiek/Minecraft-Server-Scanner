@@ -3,12 +3,12 @@ const { spawn } = require('child_process');
 
 async function knownIps() {
   ips = '';
-  fs.open('ips', 'r', function(status, fd) {
+  fs.open('ips2', 'r', function(status, fd) {
     if (status) {
       console.log(status.message);
       return;
     }
-    const size = fs.statSync('ips').size;
+    const size = fs.statSync('ips2').size;
     var buffer = Buffer.alloc(size);
     fs.read(fd, buffer, 0, buffer.length, 0, function(err, num) {
       console.log(`size: ${size}`);
@@ -20,7 +20,7 @@ async function knownIps() {
 
       fs.writeFile('./includeFile.txt', ips, function (err) {
         if (err) console.error(err);
-        const childProcess = spawn('sh', ['-c', `sudo masscan -p 1024-65535 --include-file includeFile.txt --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan2.json`]);
+        const childProcess = spawn('sh', ['-c', `sudo masscan -p 1024-65535 --include-file includeFile.txt --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan3.json`]);
 
         childProcess.stdout.on('data', (data) => {
           // Process the output as needed

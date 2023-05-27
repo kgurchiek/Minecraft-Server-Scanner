@@ -70,7 +70,7 @@ async function known24s() {
 
 async function knownIps() {
   ips = '';
-  fs.open('ips', 'r', function(status, fd) {
+  fs.open('ips2', 'r', function(status, fd) {
     if (status) {
       console.log(status.message);
       return;
@@ -102,7 +102,7 @@ async function knownIps() {
         childProcess.on('close', async (code) => {
           if (code === 0) {
             console.log('Masscan finished.');
-            await save3();
+            //await save3();
           } else {
             console.error(`Command exited with code ${code}`);
           }

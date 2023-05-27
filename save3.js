@@ -6,12 +6,12 @@ function save3() {
     const fileStream = fs.createReadStream('./masscan3.json');
     const writeStream = fs.createWriteStream('./ips3');
 
-    fs.open('ips', 'r', function(status, fd) {
+    fs.open('ips2', 'r', function(status, fd) {
       if (status) {
         console.log(status.message);
         return;
       }
-      const size = fs.statSync('ips').size;
+      const size = fs.statSync('ips2').size;
       var buffer = Buffer.alloc(size);
       fs.read(fd, buffer, 0, buffer.length, 0, function(err, num) {
         writeStream.write(buffer);
