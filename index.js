@@ -103,6 +103,7 @@ async function knownIps() {
           if (code === 0) {
             console.log('Masscan finished.');
             await save3();
+            fullPort(25565);
           } else {
             console.error(`Command exited with code ${code}`);
           }
