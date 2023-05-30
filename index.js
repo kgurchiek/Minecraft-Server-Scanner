@@ -4,7 +4,7 @@ const { spawn } = require('child_process');
 const config = require('./config.json');
 
 async function fullPort(port) {
-  const childProcess = spawn('sh', ['-c', `sudo masscan -p ${port} 0.0.0.0/0 --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
+  const childProcess = spawn('sh', ['-c', `sudo masscan -p ${port} 0.0.0.0/0 --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan.json`]);
 
   childProcess.stdout.on('data', (data) => {
     // Process the output as needed
@@ -43,7 +43,7 @@ async function known24s() {
 
       fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ips)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''), function (err) {
         if (err) console.error(err);
-        const childProcess = spawn('sh', ['-c', `sudo masscan -p 25540-25700 --include-file includeFile.txt --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan2.json`]);
+        const childProcess = spawn('sh', ['-c', `sudo masscan -p 25540-25700 --include-file includeFile.txt --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan2.json`]);
 
         childProcess.stdout.on('data', (data) => {
           // Process the output as needed
@@ -88,7 +88,7 @@ async function knownIps() {
 
       fs.writeFile('./includeFile.txt', ips, function (err) {
         if (err) console.error(err);
-        const childProcess = spawn('sh', ['-c', `sudo masscan -p 25000-33000 --include-file includeFile.txt --rate=100000 --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan3.json`]);
+        const childProcess = spawn('sh', ['-c', `sudo masscan -p 0-65535 --include-file includeFile.txt --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan3.json`]);
 
         childProcess.stdout.on('data', (data) => {
           // Process the output as needed

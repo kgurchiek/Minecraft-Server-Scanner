@@ -1,4 +1,5 @@
 {
   "gitUser": "YOUR USERNAME HERE",
-  "gitEmail": "YOUR EMAIL HERE"
+  "gitEmail": "YOUR EMAIL HERE",
+  "packetLimit": 100000
 }
