@@ -2,12 +2,12 @@
 Uses [Mat's fork of masscan](https://github.com/mat-1/masscan) to search for Minecraft servers. Used for my [Minecraft Server Scanner Discord Bot](https://github.com/kgurchiek/Minecraft-Server-Scanner-Discord-Bot)
 
 ## Usage
+Note: You do not need to run this yourself. It's already being hosted, and the ips file is updated automatically every few days (Each scan takes me about 60 hours)
 - Install mat's fork of masscan from https://github.com/mat-1/masscan, and install it \(use the same install instructions from [the original masscan](https://github.com/robertdavidgraham/masscan)\)
 - Update config.json with your github username and email, and set the packet rate limit (per second). 100000 is recommended, but please do not do it this fast on your personal internet, as it will likely be obliterated.
 - Run index.js (the other js files are just for debugging functions, you can ignore them)
 
 The ips will be saved in the `ips` file. Each 6 bytes represents a server, the first 4 being the ip, and the other 2 making the port (1st byte * 256 + 2nd byte)
-
 
 ## How It Works
 For each scan, first a typical masscan is run, finidng open tcp connections. Once a connection is found, it's pinged with Minecraft protocol to check if it's a Minecraft server. This is run in the following steps:
