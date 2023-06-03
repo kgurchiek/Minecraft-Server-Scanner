@@ -8,8 +8,8 @@ async function fullPort(port) {
 
   childProcess.stdout.on('data', (data) => {
     // Process the output as needed
-    if (line.startsWith('{')) {
-      const obj = JSON.parse(line);
+    if (data.toString().startsWith('{')) {
+      const obj = JSON.parse(data.toString());
       for (const port of obj.ports) {
         if (port.reason !== "syn-ack") {
           const splitIP = obj.ip.split('.');
