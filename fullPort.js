@@ -8,12 +8,9 @@ async function fullPort(port) {
 
   var leftOver = null;
   childProcess.stdout.on('data', (data) => {
-    console.log('Data')
-    console.log(data.toString().split('\n,\n')[0] == '');
     var string = data.toString();
     if (leftOver == null) string = string.substring(string.indexOf('{'));
     if (leftOver != null) string = leftOver + string;
-    console.log(`String: ${string.substring(0, 1)}`);
     for (var i = 0; i < string.split('\n,\n').length - 1; i++) {
       var line = string.split('\n,\n')[i];
       if (line.startsWith('\n') || line.startsWith(',') == '') continue;
