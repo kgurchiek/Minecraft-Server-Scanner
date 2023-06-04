@@ -140,6 +140,8 @@ async function knownIps() {
     const size = fs.statSync('ips2').size;
     var buffer = Buffer.alloc(size);
     fs.read(fd, buffer, 0, buffer.length, 0, function(err, num) {
+      console.log(`size: ${size}`);
+
       for (var i = 0; i < buffer.length; i += 6) {
         ips[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}`] = 0;
         ipPorts[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}:${buffer[i + 4] * 256 + buffer[i + 5]}`] = 0;
@@ -203,7 +205,23 @@ async function knownIps() {
             }
             console.log('Masscan finished.');
             writeStream.end();
-            fullPort(25565);
+            const childProcess = spawn('sh', ['-c', `git config --global user.email "${config.gitEmail}" ; git config --global user.name "${config.gitUser}" ; git add ips ; git commit -m "${(new Date()).getTime() / 1000}" ; git push`]);
+            childProcess.stdout.on('data', (data) => {
+              // Process the output as needed
+              console.log(data.toString());
+            });
+
+            childProcess.stderr.on('data', (data) => {
+              // Handle any error output
+              console.error(data.toString());
+            });
+
+            childProcess.on('close', async (code) => {
+              if (code != 0) {
+                console.error(`Command exited with code ${code}`);
+              }
+              fullPort(25565);
+            });
           } else {
             console.error(`Command exited with code ${code}`);
           }

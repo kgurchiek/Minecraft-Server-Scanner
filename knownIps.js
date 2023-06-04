@@ -96,7 +96,23 @@ async function knownIps() {
             }
             console.log('Masscan finished.');
             writeStream.end();
-            fullPort(25565);
+            const childProcess = spawn('sh', ['-c', `git config --global user.email "${config.gitEmail}" ; git config --global user.name "${config.gitUser}" ; git add ips ; git commit -m "${(new Date()).getTime() / 1000}" ; git push`]);
+            childProcess.stdout.on('data', (data) => {
+              // Process the output as needed
+              console.log(data.toString());
+            });
+
+            childProcess.stderr.on('data', (data) => {
+              // Handle any error output
+              console.error(data.toString());
+            });
+
+            childProcess.on('close', async (code) => {
+              if (code != 0) {
+                console.error(`Command exited with code ${code}`);
+              }
+              fullPort(25565);
+            });
           } else {
             console.error(`Command exited with code ${code}`);
           }
