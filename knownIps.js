@@ -19,6 +19,7 @@ async function known24s() {
   })
   
   const ips = {};
+  const ipPorts = {};
   fs.open('ips2', 'r', function(status, fd) {
     if (status) {
       console.log(status.message);
@@ -32,7 +33,6 @@ async function known24s() {
       for (var i = 0; i < buffer.length; i += 6) {
         ips[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}`] = 0;
         ipPorts[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}:${buffer[i + 4] * 256 + buffer[i + 5]}`] = 0;
-
       }
 
       fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ips)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''), function (err) {
