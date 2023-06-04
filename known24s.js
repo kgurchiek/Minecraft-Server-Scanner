@@ -18,7 +18,8 @@ async function known24s() {
     })
   })
   
-  ips = {};
+  const ips = {};
+  const ipRanges = {};
   fs.open('ips1', 'r', function(status, fd) {
     if (status) {
       console.log(status.message);
@@ -29,54 +30,38 @@ async function known24s() {
     fs.read(fd, buffer, 0, buffer.length, 0, function(err, num) {
       console.log(`size: ${size}`);
 
-      for (var i = 0; i < buffer.length; i += 6) ips[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.0/24`] = 0;
+      for (var i = 0; i < buffer.length; i += 6) {
+        ips[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}:${buffer[i + 4] * 256 + buffer[i + 5]}`] = 0;
+        ipRanges[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.0/24`] = 0;
+      }
 
-      fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ips)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''), function (err) {
+      fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ipRanges)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''), function (err) {
         if (err) console.error(err);
         const childProcess = spawn('sh', ['-c', `sudo masscan -p 25540-25700 --include-file includeFile.txt --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan2.json`]);
 
+        var leftOver = null;
         childProcess.stdout.on('data', (data) => {
           var string = data.toString();
           if (leftOver == null) string = string.substring(string.indexOf('{'));
           if (leftOver != null) string = leftOver + string;
           for (var i = 0; i < string.split('\n,\n').length - 1; i++) {
             var line = string.split('\n,\n')[i];
-            if (line.startsWith('\n') || line.startsWith(',') == '') continue;
-            const obj = JSON.parse(line);
-            for (const port of obj.ports) {
-              if (port.reason !== "syn-ack") {
-                const splitIP = obj.ip.split('.');
-                const buffer = Buffer.from([
-                  parseInt(splitIP[0]),
-                  parseInt(splitIP[1]),
-                  parseInt(splitIP[2]),
-                  parseInt(splitIP[3]),
-                  Math.floor(port.port / 256),
-                  port.port % 256
-                ]);
-                writeStream.write(buffer);
-              }
-            }
             try {
-              const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
+              if (line.startsWith('[')) line = line.substring(1);
+              const obj = JSON.parse(line);
               for (const port of obj.ports) {
-                if (port.reason !== "syn-ack") {
-                  const splitIP = obj.ip.split('.');
-                  const buffer = Buffer.from([
-                    parseInt(splitIP[0]),
-                    parseInt(splitIP[1]),
-                    parseInt(splitIP[2]),
-                    parseInt(splitIP[3]),
-                    Math.floor(port.port / 256),
-                    port.port % 256
-                  ]);
-                  writeStream.write(buffer);
-                }
+                if (port.reason !== "syn-ack") ipRanges[`${splitIP[0]}.${obj.ip}:${port.port}`] = 1;
               }
-              leftOver = '';
-            } catch (err) {
-              leftOver = string.split('\n,\n')[string.split('\n,\n').length - 1];
-            }
+              try {
+                const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
+                for (const port of obj.ports) {
+                  if (port.reason !== "syn-ack") ipRanges[`${splitIP[0]}.${obj.ip}:${port.port}`] = 1;
+                }
+                leftOver = '';
+              } catch (err) {
+                leftOver = string.split('\n,\n')[string.split('\n,\n').length - 1];
+              }
+            } catch (err) {}
           }
         });
 
@@ -86,6 +71,19 @@ async function known24s() {
 
         childProcess.on('close', async (code) => {
           if (code === 0) {
+            for (const ip of Object.keys(ips)) {
+              splitIp = ip.split(':').split('.');
+              port = ip.split(':')[1];
+              const buffer = Buffer.from([
+                parseInt(splitIP[0]),
+                parseInt(splitIP[1]),
+                parseInt(splitIP[2]),
+                parseInt(splitIP[3]),
+                Math.floor(port / 256),
+                port % 256
+              ]);
+              writeStream.write(buffer);
+            }
             console.log('Masscan finished.');
             writeStream.end();
             //knownIps();
