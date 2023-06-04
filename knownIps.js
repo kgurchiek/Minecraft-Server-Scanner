@@ -7,7 +7,7 @@ const config = require('./config.json')
 
 async function knownIps() {
   // copy ips2
-  const writeStream = fs.createWriteStream('./ips3');
+  const writeStream = fs.createWriteStream('./ips');
 
   fs.open('ips2', 'r', function(status, fd) {
     if (status) {
@@ -96,7 +96,7 @@ async function knownIps() {
             }
             console.log('Masscan finished.');
             writeStream.end();
-            //fullPort(25565);
+            fullPort(25565);
           } else {
             console.error(`Command exited with code ${code}`);
           }
