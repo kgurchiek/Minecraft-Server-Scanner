@@ -50,12 +50,12 @@ async function known24s() {
               if (line.startsWith('[')) line = line.substring(1);
               const obj = JSON.parse(line);
               for (const port of obj.ports) {
-                if (port.reason !== "syn-ack") ips[`${obj.ip}:${port.port}`] = 1;
+                if (port.reason !== "syn-ack") ips[`${obj.ip}:${port.port}`] = 0;
               }
               try {
                 const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
                 for (const port of obj.ports) {
-                  if (port.reason !== "syn-ack") ips[`${obj.ip}:${port.port}`] = 1;
+                  if (port.reason !== "syn-ack") ips[`${obj.ip}:${port.port}`] = 0;
                 }
                 leftOver = '';
               } catch (err) {
