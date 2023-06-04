@@ -31,6 +31,8 @@ async function known24s() {
 
       for (var i = 0; i < buffer.length; i += 6) {
         ips[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}`] = 0;
+        ipPorts[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}:${buffer[i + 4] * 256 + buffer[i + 5]}`] = 0;
+
       }
 
       fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ips)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''), function (err) {
@@ -48,12 +50,12 @@ async function known24s() {
               if (line.startsWith('[')) line = line.substring(1);
               const obj = JSON.parse(line);
               for (const port of obj.ports) {
-                if (port.reason !== "syn-ack") ipRanges[`${splitIP[0]}.${obj.ip}:${port.port}`] = 1;
+                if (port.reason !== "syn-ack") ipPorts[`${obj.ip}:${port.port}`] = 0;
               }
               try {
                 const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
                 for (const port of obj.ports) {
-                  if (port.reason !== "syn-ack") ipRanges[`${splitIP[0]}.${obj.ip}:${port.port}`] = 1;
+                  if (port.reason !== "syn-ack") ipRanges[`${obj.ip}:${port.port}`] = 0;
                 }
                 leftOver = '';
               } catch (err) {
@@ -69,7 +71,7 @@ async function known24s() {
 
         childProcess.on('close', async (code) => {
           if (code === 0) {
-            for (const ip of Object.keys(ips)) {
+            for (const ip of Object.keys(ipPorts)) {
               splitIP = ip.split(':')[0].split('.');
               port = ip.split(':')[1];
               const buffer = Buffer.from([
