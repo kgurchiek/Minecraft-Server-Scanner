@@ -18,24 +18,8 @@ async function fullPort(port) {
     for (var i = 0; i < string.split('\n,\n').length - 1; i++) {
       var line = string.split('\n,\n')[i];
       try {
-      if (line.startsWith('[')) line = line.substring(1);
-      const obj = JSON.parse(line);
-      for (const port of obj.ports) {
-        if (port.reason !== "syn-ack") {
-          const splitIP = obj.ip.split('.');
-          const buffer = Buffer.from([
-            parseInt(splitIP[0]),
-            parseInt(splitIP[1]),
-            parseInt(splitIP[2]),
-            parseInt(splitIP[3]),
-            Math.floor(port.port / 256),
-            port.port % 256
-          ]);
-          writeStream.write(buffer);
-        }
-      }
-      try {
-        const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
+        if (line.startsWith('[')) line = line.substring(1);
+        const obj = JSON.parse(line);
         for (const port of obj.ports) {
           if (port.reason !== "syn-ack") {
             const splitIP = obj.ip.split('.');
@@ -50,10 +34,26 @@ async function fullPort(port) {
             writeStream.write(buffer);
           }
         }
-        leftOver = '';
-      } catch (err) {
-        leftOver = string.split('\n,\n')[string.split('\n,\n').length - 1];
-      }
+        try {
+          const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
+          for (const port of obj.ports) {
+            if (port.reason !== "syn-ack") {
+              const splitIP = obj.ip.split('.');
+              const buffer = Buffer.from([
+                parseInt(splitIP[0]),
+                parseInt(splitIP[1]),
+                parseInt(splitIP[2]),
+                parseInt(splitIP[3]),
+                Math.floor(port.port / 256),
+                port.port % 256
+              ]);
+              writeStream.write(buffer);
+            }
+          }
+          leftOver = '';
+        } catch (err) {
+          leftOver = string.split('\n,\n')[string.split('\n,\n').length - 1];
+        }
       } catch (err) {}
     }
   });
