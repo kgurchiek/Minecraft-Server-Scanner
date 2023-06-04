@@ -46,7 +46,6 @@ function save2() {
     });
 
     rl.on('close', () => {
-      console.log(i);
       writeStream.end();
       resolve();
     });

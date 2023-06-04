@@ -4,7 +4,7 @@ const config = require('./config.json');
 
 async function fullPort(port) {
   const writeStream = fs.createWriteStream('./ips1');
-  const childProcess = spawn('sh', ['-c', `sudo masscan -p ${port} 0.0.0.0/0 --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ -`]);
+  const childProcess = spawn('sh', ['-c', `sudo masscan -p ${port} 185.0.0.0/8 --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ -`]);
 
   var leftOver = null;
   childProcess.stdout.on('data', (data) => {
@@ -13,7 +13,8 @@ async function fullPort(port) {
     if (leftOver != null) string = leftOver + string;
     for (var i = 0; i < string.split('\n,\n').length - 1; i++) {
       var line = string.split('\n,\n')[i];
-      if (line.startsWith('\n') || line.startsWith(',') == '') continue;
+      try {
+      if (line.startsWith('[')) line = line.substring(1);
       const obj = JSON.parse(line);
       for (const port of obj.ports) {
         if (port.reason !== "syn-ack") {
@@ -49,6 +50,7 @@ async function fullPort(port) {
       } catch (err) {
         leftOver = string.split('\n,\n')[string.split('\n,\n').length - 1];
       }
+      } catch (err) {}
     }
   });
 
