@@ -4,7 +4,7 @@ const config = require('./config.json');
 
 async function fullPort(port) {
   const writeStream = fs.createWriteStream('./ips1');
-  const childProcess = spawn('sh', ['-c', `sudo masscan -p ${port} 185.0.0.0/8 --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ -`]);
+  const childProcess = spawn('sh', ['-c', `sudo masscan -p ${port} 0.0.0.0/0 --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ -`]);
 
   var leftOver = null;
   childProcess.stdout.on('data', (data) => {
