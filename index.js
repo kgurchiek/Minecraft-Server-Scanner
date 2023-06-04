@@ -67,7 +67,7 @@ async function fullPort(port) {
     if (code === 0) {
       console.log('Masscan finished.');
       writeStream.end();
-      //knownIps();
+      known24s();
     } else {
       console.error(`Command exited with code ${code}`);
     }
