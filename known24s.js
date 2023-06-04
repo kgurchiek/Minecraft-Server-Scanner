@@ -72,7 +72,7 @@ async function known24s() {
         childProcess.on('close', async (code) => {
           if (code === 0) {
             for (const ip of Object.keys(ips)) {
-              splitIp = ip.split(':')[0].split('.');
+              splitIP = ip.split(':')[0].split('.');
               port = ip.split(':')[1];
               const buffer = Buffer.from([
                 parseInt(splitIP[0]),
