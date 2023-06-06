@@ -1,7 +1,7 @@
 const fs = require('fs');
 const { spawn } = require('child_process');
 const { MongoClient } = require('mongodb');
-const client = new MongoClient("mongodb+srv://Cornbread2100:Cornbread2100%28900%29@mcss.4nrik58.mongodb.net/?retryWrites=true&w=majority");
+const client = new MongoClient("mongodb+srv://public:public@mcss.4nrik58.mongodb.net/?retryWrites=true&w=majority");
 const scannedServers = client.db("MCSS").collection("scannedServers");
 const config = require('./config.json')
 
