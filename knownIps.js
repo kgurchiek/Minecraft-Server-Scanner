@@ -40,7 +40,7 @@ async function knownIps() {
 
       fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ips)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''), function (err) {
         if (err) console.error(err);
-        const childProcess = spawn('sh', ['-c', `sudo masscan -p 0-65535 --include-file includeFile.txt --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan2.json`]);
+        const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 0-65535 --include-file includeFile.txt --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan2.json`]);
 
         var leftOver = null;
         childProcess.stdout.on('data', (data) => {
