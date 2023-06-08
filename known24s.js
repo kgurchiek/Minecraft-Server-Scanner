@@ -37,7 +37,7 @@ async function known24s() {
 
       fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ipRanges)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''), function (err) {
         if (err) console.error(err);
-        const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 25500-25700 --include-file includeFile.txt --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ../masscan/data/exclude.conf -oJ masscan2.json`]);
+        const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 25500-25700 --include-file includeFile.txt --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ./exclude.conf -oJ masscan2.json`]);
 
         var leftOver = null;
         childProcess.stdout.on('data', (data) => {
