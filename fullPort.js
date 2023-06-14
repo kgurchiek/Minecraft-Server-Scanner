@@ -56,7 +56,7 @@ async function fullPort(port) {
 
   childProcess.stderr.on('data', (data) => {
     // Handle any error output
-    console.error(data.toString());
+    console.log(data.toString());
   });
 
   childProcess.on('close', async (code) => {

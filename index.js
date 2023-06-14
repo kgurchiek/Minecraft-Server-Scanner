@@ -60,7 +60,7 @@ async function fullPort(port) {
 
   childProcess.stderr.on('data', (data) => {
     // Handle any error output
-    console.error(data.toString());
+    console.log(data.toString());
   });
 
   childProcess.on('close', async (code) => {
@@ -138,7 +138,7 @@ async function known24s() {
         });
 
         childProcess.stderr.on('data', (data) => {
-          console.error(data.toString());
+          console.log(data.toString());
         });
 
         childProcess.on('close', async (code) => {
@@ -232,7 +232,7 @@ async function knownIps() {
         });
 
         childProcess.stderr.on('data', (data) => {
-          console.error(data.toString());
+          console.log(data.toString());
         });
 
         childProcess.on('close', async (code) => {

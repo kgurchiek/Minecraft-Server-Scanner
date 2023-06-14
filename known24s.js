@@ -66,7 +66,7 @@ async function known24s() {
         });
 
         childProcess.stderr.on('data', (data) => {
-          console.error(data.toString());
+          console.log(data.toString());
         });
 
         childProcess.on('close', async (code) => {
