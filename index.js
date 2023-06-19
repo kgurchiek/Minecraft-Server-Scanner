@@ -171,18 +171,6 @@ async function known24s() {
 async function knownIps() {
   // copy ips2
   const writeStream = fs.createWriteStream('./ips');
-
-  fs.open('ips2', 'r', function(status, fd) {
-    if (status) {
-      console.log(status.message);
-      return;
-    }
-    const size = fs.statSync('ips2').size;
-    var buffer = Buffer.alloc(size);
-    fs.read(fd, buffer, 0, buffer.length, 0, function(err, num) {
-      writeStream.write(buffer);
-    })
-  })
   
   const ips = {};
   const ipPorts = {};
