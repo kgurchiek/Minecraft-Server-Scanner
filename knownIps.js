@@ -6,9 +6,7 @@ const scannedServers = client.db("MCSS").collection("scannedServers");
 const config = require('./config.json')
 
 async function knownIps() {
-  // copy ips2
   const writeStream = fs.createWriteStream('./ips');
-  
   const ips = {};
   const ipPorts = {};
   fs.open('ips2', 'r', function(status, fd) {

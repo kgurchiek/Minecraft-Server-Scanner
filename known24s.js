@@ -3,21 +3,7 @@ const { spawn } = require('child_process');
 const config = require('./config.json')
 
 async function known24s() {
-  // copy ips1
   const writeStream = fs.createWriteStream('./ips2');
-
-  fs.open('ips1', 'r', function(status, fd) {
-    if (status) {
-      console.log(status.message);
-      return;
-    }
-    const size = fs.statSync('ips1').size;
-    var buffer = Buffer.alloc(size);
-    fs.read(fd, buffer, 0, buffer.length, 0, function(err, num) {
-      writeStream.write(buffer);
-    })
-  })
-  
   const ips = {};
   const ipRanges = {};
   fs.open('ips1', 'r', function(status, fd) {
