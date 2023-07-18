@@ -3,8 +3,8 @@ Uses [Mat's fork of masscan](https://github.com/mat-1/masscan) to search for Min
 
 ## Usage
 Note: You do not need to run this yourself. It's already being hosted, and the ips file is updated automatically
-- Install mat's fork of masscan from https://github.com/mat-1/masscan, and install it \(use the same install instructions from [the original masscan](https://github.com/robertdavidgraham/masscan)\)
-- Update config.json with your github username and email, and set the packet rate limit (per second). 100000 is recommended, but please do not do it this fast on your personal internet, as it will likely be obliterated.
+- Install masscan from https://github.com/robertdavidgraham/masscan
+- Update config.json with your github username and email, and set the packet rate limit (per second). 100000 is recommended.
 - Run index.js (the other js files are just for debugging functions, you can ignore them)
 
 The ips will be saved in the `ips` file. Each 6 bytes represents a server, the first 4 being the ip, and the other 2 making the port (1st byte * 256 + 2nd byte)

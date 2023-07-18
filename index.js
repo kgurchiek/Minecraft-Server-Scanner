@@ -8,7 +8,7 @@ const config = require('./config.json');
 
 async function fullPort(port) {
   const writeStream = fs.createWriteStream('./ips1');
-  const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p ${port} 0.0.0.0/0 --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ./exclude.conf -oJ -`]);
+  const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p ${port} 0.0.0.0/0 --rate=${config.packetLimit} --excludefile ./exclude.conf -oJ -`]);
 
   var leftOver = null;
   childProcess.stdout.on('data', (data) => {
@@ -21,7 +21,20 @@ async function fullPort(port) {
         if (line.startsWith('[')) line = line.substring(1);
         const obj = JSON.parse(line);
         for (const port of obj.ports) {
-          if (port.reason !== "syn-ack") {
+          const splitIP = obj.ip.split('.');
+          const buffer = Buffer.from([
+            parseInt(splitIP[0]),
+            parseInt(splitIP[1]),
+            parseInt(splitIP[2]),
+            parseInt(splitIP[3]),
+            Math.floor(port.port / 256),
+            port.port % 256
+          ]);
+          writeStream.write(buffer);
+        }
+        try {
+          const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
+          for (const port of obj.ports) {
             const splitIP = obj.ip.split('.');
             const buffer = Buffer.from([
               parseInt(splitIP[0]),
@@ -32,23 +45,6 @@ async function fullPort(port) {
               port.port % 256
             ]);
             writeStream.write(buffer);
-          }
-        }
-        try {
-          const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
-          for (const port of obj.ports) {
-            if (port.reason !== "syn-ack") {
-              const splitIP = obj.ip.split('.');
-              const buffer = Buffer.from([
-                parseInt(splitIP[0]),
-                parseInt(splitIP[1]),
-                parseInt(splitIP[2]),
-                parseInt(splitIP[3]),
-                Math.floor(port.port / 256),
-                port.port % 256
-              ]);
-              writeStream.write(buffer);
-            }
           }
           leftOver = '';
         } catch (err) {
@@ -95,7 +91,7 @@ async function known24s() {
 
       fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ipRanges)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''), function (err) {
         if (err) console.error(err);
-        const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 25540-25700 --include-file includeFile.txt --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ./exclude.conf -oJ -`]);
+        const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 25540-25700 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ./exclude.conf -oJ -`]);
 
         var leftOver = null;
         childProcess.stdout.on('data', (data) => {
@@ -108,12 +104,12 @@ async function known24s() {
               if (line.startsWith('[')) line = line.substring(1);
               const obj = JSON.parse(line);
               for (const port of obj.ports) {
-                if (port.reason !== "syn-ack") ips[`${obj.ip}:${port.port}`] = 0;
+                ips[`${obj.ip}:${port.port}`] = 0;
               }
               try {
                 const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
                 for (const port of obj.ports) {
-                  if (port.reason !== "syn-ack") ips[`${obj.ip}:${port.port}`] = 0;
+                  ips[`${obj.ip}:${port.port}`] = 0;
                 }
                 leftOver = '';
               } catch (err) {
@@ -175,7 +171,7 @@ async function knownIps() {
 
       fs.writeFile('./includeFile.txt', JSON.stringify(Object.keys(ips)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''), function (err) {
         if (err) console.error(err);
-        const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 0-65535 --include-file includeFile.txt --rate=${config.packetLimit} --source-port 61000 --banners --excludefile ./exclude.conf -oJ masscan2.json`]);
+        const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 0-65535 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ./exclude.conf -oJ -`]);
 
         var leftOver = null;
         childProcess.stdout.on('data', (data) => {
@@ -188,12 +184,12 @@ async function knownIps() {
               if (line.startsWith('[')) line = line.substring(1);
               const obj = JSON.parse(line);
               for (const port of obj.ports) {
-                if (port.reason !== "syn-ack") ipPorts[`${obj.ip}:${port.port}`] = 0;
+                ipPorts[`${obj.ip}:${port.port}`] = 0;
               }
               try {
                 const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
                 for (const port of obj.ports) {
-                  if (port.reason !== "syn-ack") ipPorts[`${obj.ip}:${port.port}`] = 0;
+                  ipPorts[`${obj.ip}:${port.port}`] = 0;
                 }
                 leftOver = '';
               } catch (err) {
