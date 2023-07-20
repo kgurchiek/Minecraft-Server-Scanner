@@ -72,9 +72,10 @@ async function knownIps() {
                 ipPorts[`${doc.ip}:${doc.port}`] = 0;
               })
             }
-            for (var i = 0; i < Object.keys(ipPorts).length; i++) {
-              console.log(`${i}/${Object.keys(ips).length}`);
-              const ip = Object.keys(ipPorts)[i];
+            const ipsArray = [...Object.keys(ipPorts)]
+            for (var i = 0; i < ipsArray.length; i++) {
+              console.log(`${i}/${ipsArray.length}`);
+              const ip = ipsArray[i];
               splitIP = ip.split(':')[0].split('.');
               port = ip.split(':')[1];
               const buffer = Buffer.from([

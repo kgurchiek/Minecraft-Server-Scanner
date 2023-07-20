@@ -57,9 +57,10 @@ async function known24s() {
 
         childProcess.on('close', async (code) => {
           if (code === 0) {
-            for (var i = 0; i < Object.keys(ips).length; i++) {
-              console.log(`${i}/${Object.keys(ips).length}`);
-              const ip = Object.keys(ips)[i];
+            const ipsArray = [...Object.keys(ips)]
+            for (var i = 0; i < ipsArray.length; i++) {
+              console.log(`${i}/${ipsArray.length}`);
+              const ip = ipsArray[i];
               splitIP = ip.split(':')[0].split('.');
               port = ip.split(':')[1];
               const buffer = Buffer.from([
