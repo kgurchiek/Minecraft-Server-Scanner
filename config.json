@@ -4,5 +4,7 @@
   "gitEmail": "YOUR EMAIL HERE",
   "packetLimit": 100000,
   "sudo": true,
-  "repeat": false
+  "repeat": false,
+  "useMongo": false,
+  "mongoURI": ""
 }

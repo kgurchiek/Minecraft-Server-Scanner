@@ -1,9 +1,11 @@
 const fs = require('fs');
-const readline = require('readline');
 const { spawn } = require('child_process');
-const { MongoClient } = require('mongodb');
-const client = new MongoClient("mongodb+srv://public:public@mcss.4nrik58.mongodb.net/?retryWrites=true&w=majority");
-const scannedServers = client.db("MCSS").collection("scannedServers");
+var scannedServers;
+if (config.useMongo) {
+  const { MongoClient } = require('mongodb');
+  const client = new MongoClient(config.mongoURI);
+  scannedServers = client.db("MCSS").collection("scannedServers");
+}
 const config = require('./config.json');
 
 async function fullPort(port) {
@@ -205,13 +207,15 @@ async function knownIps() {
 
         childProcess.on('close', async (code) => {
           if (code === 0) {
-            var totalServers = await scannedServers.countDocuments({ 'lastSeen': { '$gte': Math.round((new Date()).getTime() / 1000) - 86400 }});
-            var i = 0;
-            await scannedServers.find({ 'lastSeen': { '$gte': Math.round((new Date()).getTime() / 1000) - 86400 }}).forEach(doc => {
-              console.log(`${i}/${totalServers}`);
-              i++;
-              ipPorts[`${doc.ip}:${doc.port}`] = 0;
-            })
+            if (config.useMongo) {
+              var totalServers = await scannedServers.countDocuments({ 'lastSeen': { '$gte': Math.round((new Date()).getTime() / 1000) - 86400 }});
+              var i = 0;
+              await scannedServers.find({ 'lastSeen': { '$gte': Math.round((new Date()).getTime() / 1000) - 86400 }}).forEach(doc => {
+                console.log(`${i}/${totalServers}`);
+                i++;
+                ipPorts[`${doc.ip}:${doc.port}`] = 0;
+              })
+            }
             for (const ip of Object.keys(ipPorts)) {
               splitIP = ip.split(':')[0].split('.');
               port = ip.split(':')[1];
