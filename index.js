@@ -219,6 +219,7 @@ async function knownIps() {
               })
             }
             for (var i = 0; i < Object.keys(ipPorts).length; i++) {
+              console.log(`${i}/${Object.keys(ips).length}`);
               const ip = Object.keys(ipPorts)[i];
               splitIP = ip.split(':')[0].split('.');
               port = ip.split(':')[1];
