@@ -1,12 +1,12 @@
 const fs = require('fs');
 const { spawn } = require('child_process');
+const config = require('./config.json');
 var scannedServers;
 if (config.useMongo) {
   const { MongoClient } = require('mongodb');
   const client = new MongoClient(config.mongoURI);
   scannedServers = client.db("MCSS").collection("scannedServers");
 }
-const config = require('./config.json');
 
 async function fullPort(port) {
   const writeStream = fs.createWriteStream('./ips1');
