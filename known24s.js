@@ -7,29 +7,23 @@ async function known24s() {
   const writeStream = fs.createWriteStream('./ips2');
   var ipRanges = [];
   await (new Promise((resolve, reject) => {
-    fs.open('ips1', 'r', function(status, fd) {
-      if (status) {
-        console.log(status.message);
-        return;
+    const size = fs.statSync('ips1').size;
+    const stream = fs.createReadStream('ips1');
+    var sizeWritten = 0;
+    const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
+    var lastData = null;
+    stream.on('data', (data) => {
+      sizeWritten += data.length;
+      if (lastData != null) data = Buffer.concat([lastData, data]);
+      for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
+        ipRanges.push(`${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
       }
-      const size = fs.statSync('ips1').size;
-      const stream = fs.createReadStream(process.argv[2]);
-      var sizeWritten = 0;
-      const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
-      var lastData = null;
-      stream.on('data', (data) => {
-        sizeWritten += data.length;
-        if (lastData != null) data = Buffer.concat([lastData, data]);
-        for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
-          ipRanges.push(`${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
-        }
-        lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
-      }).on('error', err => {
-        throw err;
-      }).on('end', () => {
-        clearInterval(logInterval);
-        resolve();
-      });
+      lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
+    }).on('error', err => {
+      throw err;
+    }).on('end', () => {
+      clearInterval(logInterval);
+      resolve();
     });
   }));
 
