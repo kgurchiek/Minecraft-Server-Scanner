@@ -9,35 +9,37 @@ if (config.useMongo) {
 }
 
 async function knownIps() {
+  fs.copyFileSync('./ips2', './ips');
   const writeStream = fs.createWriteStream('./ips');
-  var ips = {};
+  var ips = [];
   await (new Promise((resolve, reject) => {
-    fs.open('ips2', 'r', function(status, fd) {
+    fs.open('ips1', 'r', function(status, fd) {
       if (status) {
         console.log(status.message);
         return;
       }
-      const size = fs.statSync('ips2').size;
-      var buffer = Buffer.alloc(size);
-      fs.read(fd, buffer, 0, buffer.length, 0, async function(err, num) {
-        console.log(`size: ${size}`);
-        for (var i = 0; i < buffer.length; i += 6) {
-          writeStream.write(Buffer.from([
-            buffer[i],
-            buffer[i + 1],
-            buffer[i + 2],
-            buffer[i + 3],
-            buffer[i + 4],
-            buffer[i + 5]
-          ]));
-          ips[`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}`] = 0;
+      const size = fs.statSync('ips1').size;
+      const stream = fs.createReadStream(process.argv[2]);
+      var sizeWritten = 0;
+      const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
+      var lastData = null;
+      stream.on('data', (data) => {
+        sizeWritten += data.length;
+        if (lastData != null) data = Buffer.concat([lastData, data]);
+        for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
+          ips.push(`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}`) = 0;
         }
+        lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
+      }).on('error', err => {
+        throw err;
+      }).on('end', () => {
+        clearInterval(logInterval);
         resolve();
       });
     });
   }));
 
-  fs.writeFileSync('./includeFile.txt', JSON.stringify(Object.keys(ips)).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''));
+  fs.writeFileSync('./includeFile.txt', JSON.stringify(ips).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''));
   ips = null;
   if (err) console.error(err);
   const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 0-25499,25701-65535 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ./exclude.conf -oJ -`]);
@@ -92,24 +94,6 @@ async function knownIps() {
 
   childProcess.on('close', async (code) => {
     if (code === 0) {
-      if (config.useMongo) {
-        var totalServers = await scannedServers.countDocuments({ 'lastSeen': { '$gte': Math.round((new Date()).getTime() / 1000) - 86400 }});
-        var i = 0;
-        await scannedServers.find({ 'lastSeen': { '$gte': Math.round((new Date()).getTime() / 1000) - 86400 }}).forEach(doc => {
-          console.log(`${i}/${totalServers}`);
-          i++;
-          splitIP = doc.ip.split('.');
-          const buffer = Buffer.from([
-            parseInt(splitIP[0]),
-            parseInt(splitIP[1]),
-            parseInt(splitIP[2]),
-            parseInt(splitIP[3]),
-            Math.floor(doc.port / 256),
-            doc.port % 256
-          ]);
-          writeStream.write(buffer);
-        })
-      }
       console.log('Masscan finished.');
       writeStream.end();
       fs.unlinkSync('./includeFile.txt');

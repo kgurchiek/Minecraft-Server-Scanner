@@ -3,6 +3,7 @@ const { spawn } = require('child_process');
 const config = require('./config.json')
 
 async function known24s() {
+  fs.copyFileSync('./ips1', './ips2');
   const writeStream = fs.createWriteStream('./ips2');
   var ipRanges = [];
   await (new Promise((resolve, reject) => {
@@ -12,20 +13,21 @@ async function known24s() {
         return;
       }
       const size = fs.statSync('ips1').size;
-      var buffer = Buffer.alloc(size);
-      fs.read(fd, buffer, 0, buffer.length, 0, async function(err, num) {
-        console.log(`size: ${size}`);
-        for (var i = 0; i < buffer.length; i += 6) {
-          writeStream.write(Buffer.from([
-            buffer[i],
-            buffer[i + 1],
-            buffer[i + 2],
-            buffer[i + 3],
-            buffer[i + 4],
-            buffer[i + 5]
-          ]));
-          ipRanges.push(`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.0/24`);
+      const stream = fs.createReadStream(process.argv[2]);
+      var sizeWritten = 0;
+      const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
+      var lastData = null;
+      stream.on('data', (data) => {
+        sizeWritten += data.length;
+        if (lastData != null) data = Buffer.concat([lastData, data]);
+        for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
+          ipRanges.push(`${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
         }
+        lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
+      }).on('error', err => {
+        throw err;
+      }).on('end', () => {
+        clearInterval(logInterval);
         resolve();
       });
     });
