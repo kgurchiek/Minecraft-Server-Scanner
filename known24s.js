@@ -5,7 +5,7 @@ const config = require('./config.json')
 async function known24s() {
   fs.copyFileSync('./ips1', './ips2');
   const writeStream = fs.createWriteStream('./ips2');
-  var ipRanges = [];
+  const includeWriteStream = fs.createWriteStream('./includeFile.txt');
   await (new Promise((resolve, reject) => {
     const size = fs.statSync('ips1').size;
     const stream = fs.createReadStream('ips1');
@@ -15,9 +15,11 @@ async function known24s() {
     stream.on('data', (data) => {
       sizeWritten += data.length;
       if (lastData != null) data = Buffer.concat([lastData, data]);
-      for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
-        ipRanges.push(`${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
+      includeWriteStream.write(`${data[0]}.${data[1]}.${data[2]}.0/24`);
+      for (var i = 6; i < Math.floor(data.length / 6) * 6; i += 6) {
+        includeWriteStream.write(`,${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
       }
+      includeWriteStream.close();
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
     }).on('error', err => {
       throw err;
@@ -26,9 +28,7 @@ async function known24s() {
       resolve();
     });
   }));
-
-  fs.writeFileSync(`./includeFile.txt`, JSON.stringify(ipRanges).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''));
-  ipRanges = null;
+  
   const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 25500-25564,25566-25700 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ./exclude.conf -oJ -`]);
 
   var leftOver = null;

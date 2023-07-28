@@ -1,17 +1,11 @@
 const fs = require('fs');
 const { spawn } = require('child_process');
 const config = require('./config.json');
-var scannedServers;
-if (config.useMongo) {
-  const { MongoClient } = require('mongodb');
-  const client = new MongoClient(config.mongoURI);
-  scannedServers = client.db("MCSS").collection("scannedServers");
-}
 
 async function knownIps() {
   fs.copyFileSync('./ips2', './ips');
   const writeStream = fs.createWriteStream('./ips');
-  var ips = [];
+  const includeWriteStream = fs.createWriteStream('./includeFile.txt');
   await (new Promise((resolve, reject) => {
     const size = fs.statSync('ips2').size;
     const stream = fs.createReadStream('ips2');
@@ -21,9 +15,11 @@ async function knownIps() {
     stream.on('data', (data) => {
       sizeWritten += data.length;
       if (lastData != null) data = Buffer.concat([lastData, data]);
-      for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
-        ips.push(`${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
+      includeWriteStream.write(`${data[0]}.${data[1]}.${data[2]}.${data[3]}`);
+      for (var i = 6; i < Math.floor(data.length / 6) * 6; i += 6) {
+        includeWriteStream.write(`,${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
       }
+      includeWriteStream.close();
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
     }).on('error', err => {
       throw err;
@@ -33,9 +29,6 @@ async function knownIps() {
     });
   }));
 
-  fs.writeFileSync('./includeFile.txt', JSON.stringify(ips).replaceAll('"', '').replaceAll('[', '').replaceAll(']', ''));
-  ips = null;
-  if (err) console.error(err);
   const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 0-25499,25701-65535 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ./exclude.conf -oJ -`]);
 
   var leftOver = null;
