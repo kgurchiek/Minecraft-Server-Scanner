@@ -22,7 +22,7 @@ async function knownIps() {
       sizeWritten += data.length;
       if (lastData != null) data = Buffer.concat([lastData, data]);
       for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
-        ips.push(`${buffer[i]}.${buffer[i + 1]}.${buffer[i + 2]}.${buffer[i + 3]}`) = 0;
+        ips.push(`${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`) = 0;
       }
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
     }).on('error', err => {
