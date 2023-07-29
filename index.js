@@ -76,13 +76,12 @@ async function known24s() {
     const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
     var lastData = null;
     stream.on('data', (data) => {
-      sizeWritten += data.length;
       if (lastData != null) data = Buffer.concat([lastData, data]);
-      includeWriteStream.write(`${data[0]}.${data[1]}.${data[2]}.0/24`);
-      for (var i = 6; i < Math.floor(data.length / 6) * 6; i += 6) {
-        includeWriteStream.write(`,${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
+      for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
+        includeWriteStream.write(`${sizeWritten == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
       }
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
+      sizeWritten += data.length;
     }).on('error', err => {
       throw err;
     }).on('end', () => {
@@ -165,13 +164,12 @@ async function knownIps() {
     const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
     var lastData = null;
     stream.on('data', (data) => {
-      sizeWritten += data.length;
       if (lastData != null) data = Buffer.concat([lastData, data]);
-      includeWriteStream.write(`${data[0]}.${data[1]}.${data[2]}.${data[3]}`);
-      for (var i = 6; i < Math.floor(data.length / 6) * 6; i += 6) {
-        includeWriteStream.write(`,${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
+      for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
+        includeWriteStream.write(`${sizeWritten == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
       }
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
+      sizeWritten += data.length;
     }).on('error', err => {
       throw err;
     }).on('end', () => {
@@ -252,10 +250,10 @@ async function knownIps() {
           if (code != 0) {
             console.error(`Command exited with code ${code}`);
           }
-          if (config.repeat) fullPort(25565);
+          //if (config.repeat) fullPort(25565);
         });
       } else {
-        if (config.repeat) fullPort(25565);
+        //if (config.repeat) fullPort(25565);
       }
     } else {
       console.error(`Command exited with code ${code}`);

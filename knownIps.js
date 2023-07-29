@@ -13,13 +13,12 @@ async function knownIps() {
     const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
     var lastData = null;
     stream.on('data', (data) => {
-      sizeWritten += data.length;
       if (lastData != null) data = Buffer.concat([lastData, data]);
-      includeWriteStream.write(`${data[0]}.${data[1]}.${data[2]}.${data[3]}`);
-      for (var i = 6; i < Math.floor(data.length / 6) * 6; i += 6) {
-        includeWriteStream.write(`,${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
+      for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
+        includeWriteStream.write(`${sizeWritten == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
       }
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
+      sizeWritten += data.length;
     }).on('error', err => {
       throw err;
     }).on('end', () => {
@@ -87,12 +86,10 @@ async function knownIps() {
       if (config.gitPush) {
         const childProcess = spawn('sh', ['-c', `git config --global user.email "${config.gitEmail}" ; git config --global user.name "${config.gitUser}" ; git add ips ; git commit -m "${Math.round((new Date()).getTime() / 1000)}" ; git push`]);
         childProcess.stdout.on('data', (data) => {
-          // Process the output as needed
           console.log(data.toString());
         });
 
         childProcess.stderr.on('data', (data) => {
-          // Handle any error output
           console.error(data.toString());
         });
 
