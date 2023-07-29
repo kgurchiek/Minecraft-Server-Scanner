@@ -78,7 +78,7 @@ async function known24s() {
     stream.on('data', (data) => {
       if (lastData != null) data = Buffer.concat([lastData, data]);
       for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
-        includeWriteStream.write(`${sizeWritten == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
+        includeWriteStream.write(`${sizeWritten == 0 && i == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
       }
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
       sizeWritten += data.length;
@@ -166,7 +166,7 @@ async function knownIps() {
     stream.on('data', (data) => {
       if (lastData != null) data = Buffer.concat([lastData, data]);
       for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
-        includeWriteStream.write(`${sizeWritten == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
+        includeWriteStream.write(`${sizeWritten == 0 && i == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
       }
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
       sizeWritten += data.length;
@@ -237,12 +237,10 @@ async function knownIps() {
       if (config.gitPush) {
         const childProcess = spawn('sh', ['-c', `git config --global user.email "${config.gitEmail}" ; git config --global user.name "${config.gitUser}" ; git add ips ; git commit -m "${Math.round((new Date()).getTime() / 1000)}" ; git push`]);
         childProcess.stdout.on('data', (data) => {
-          // Process the output as needed
           console.log(data.toString());
         });
 
         childProcess.stderr.on('data', (data) => {
-          // Handle any error output
           console.error(data.toString());
         });
 
@@ -250,10 +248,10 @@ async function knownIps() {
           if (code != 0) {
             console.error(`Command exited with code ${code}`);
           }
-          //if (config.repeat) fullPort(25565);
+          if (config.repeat) fullPort(25565);
         });
       } else {
-        //if (config.repeat) fullPort(25565);
+        if (config.repeat) fullPort(25565);
       }
     } else {
       console.error(`Command exited with code ${code}`);

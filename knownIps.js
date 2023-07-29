@@ -15,7 +15,7 @@ async function knownIps() {
     stream.on('data', (data) => {
       if (lastData != null) data = Buffer.concat([lastData, data]);
       for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
-        includeWriteStream.write(`${sizeWritten == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
+        includeWriteStream.write(`${sizeWritten == 0 && i == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
       }
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
       sizeWritten += data.length;
