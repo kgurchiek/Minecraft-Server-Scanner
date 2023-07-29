@@ -82,11 +82,11 @@ async function known24s() {
       for (var i = 6; i < Math.floor(data.length / 6) * 6; i += 6) {
         includeWriteStream.write(`,${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
       }
-      includeWriteStream.close();
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
     }).on('error', err => {
       throw err;
     }).on('end', () => {
+      includeWriteStream.close();
       clearInterval(logInterval);
       resolve();
     });
@@ -171,11 +171,11 @@ async function knownIps() {
       for (var i = 6; i < Math.floor(data.length / 6) * 6; i += 6) {
         includeWriteStream.write(`,${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
       }
-      includeWriteStream.close();
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
     }).on('error', err => {
       throw err;
     }).on('end', () => {
+      includeWriteStream.close();
       clearInterval(logInterval);
       resolve();
     });
