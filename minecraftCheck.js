@@ -120,7 +120,6 @@ module.exports = (ipsPath, newPath) => {
   
     function scanBatch(i, startNum) {
       return new Promise((resolve, reject) => {
-        const startTime = new Date();
         if (i >= startNum) {
           if (i + rescanRate < totalServers) {
             // scan through the end of the server list
@@ -147,7 +146,6 @@ module.exports = (ipsPath, newPath) => {
               pingServer(j)
             }
     
-            console.log(`Finished scanning in ${(new Date() - startTime) / 1000} seconds at ${new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })}.`);
             writeStream.close();
             resolve();
           }
@@ -159,7 +157,9 @@ module.exports = (ipsPath, newPath) => {
       serversPinged = 0;
       var startNum = Math.floor(Math.random() * Math.floor(totalServers / rescanRate)) * rescanRate;
       if (startNum == 0) startNum = rescanRate;
+      const startTime = new Date();
       await scanBatch(startNum, startNum);
+      console.log(`Finished scan ${i + 1}/${rescans} in ${(new Date() - startTime) / 1000} seconds at ${new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })}.`);
       resolve();
     }
   })
