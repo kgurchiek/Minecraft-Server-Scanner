@@ -96,6 +96,7 @@ module.exports = (ipsPath, newPath) => {
     const totalServers = fs.statSync(ipsPath).size / 6;
     console.log(`Total servers: ${totalServers}`);
     const verified = [];
+    var serversPinged = 0;
 
     function getServer(i) {
       const server = readIndex(serverListFD, i * 6, 6);
@@ -156,6 +157,7 @@ module.exports = (ipsPath, newPath) => {
     }
 
     for (var i = 0; i < rescans; i++) {
+      serversPinged = 0;
       var startNum = Math.floor(Math.random() * Math.floor(totalServers / rescanRate)) * rescanRate;
       if (startNum == 0) startNum = rescanRate;
       await scanBatch(startNum, startNum);
