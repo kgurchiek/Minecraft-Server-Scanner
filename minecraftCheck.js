@@ -105,9 +105,9 @@ module.exports = (ipsPath, newPath) => {
     }
   
     async function pingServer(serverIndex) {
-      if (verified.includes(serverIndex)) return;
       serversPinged++;
       if (serversPinged % 20000 == 0) console.log(serversPinged);
+      if (verified.includes(serverIndex)) return;
       const server = getServer(serverIndex);
       try {
         const response = await ping(server.ip, server.port, 0, rescanTimeout);
