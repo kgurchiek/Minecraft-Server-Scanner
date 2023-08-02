@@ -154,7 +154,7 @@ module.exports = (ipsPath, newPath) => {
     }
 
     for (var i = 0; i < rescans; i++) {
-      var startNum = Math.floor(Math.random() * Math.floor(totalServers / config.maxPings)) * config.maxPings;
+      var startNum = Math.floor(Math.random() * Math.floor(totalServers / rescanLimit)) * rescanLimit;
       if (startNum == 0) startNum = rescanLimit;
       await scanBatch(startNum, startNum);
       resolve();
