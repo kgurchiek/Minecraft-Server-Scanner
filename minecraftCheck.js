@@ -146,7 +146,6 @@ module.exports = (ipsPath, newPath) => {
             }
     
             console.log(`Finished scanning in ${(new Date() - startTime) / 1000} seconds at ${new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })}.`);
-            verified.sort((a, b) => { return b - a });
             writeStream.close();
             resolve();
           }
