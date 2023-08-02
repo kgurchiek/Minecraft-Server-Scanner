@@ -92,7 +92,7 @@ function readIndex(fd, index, size) {
 module.exports = (ipsPath, newPath) => {
   return new Promise(async (resolve, reject) => {
     const writeStream = fs.createWriteStream(newPath);
-    const serverListFD = await (new Promise((resolve, reject) => { fs.open('./test', 'r', (err, fd) => { resolve(fd); }) }));
+    const serverListFD = await (new Promise((resolve, reject) => { fs.open(ipsPath, 'r', (err, fd) => { resolve(fd); }) }));
     const totalServers = fs.statSync(ipsPath).size / 6;
     console.log(`Total servers: ${totalServers}`);
     const verified = [];
