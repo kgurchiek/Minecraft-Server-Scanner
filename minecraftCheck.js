@@ -119,6 +119,7 @@ module.exports = (ipsPath, newPath) => {
   
     function scanBatch(i, startNum) {
       return new Promise((resolve, reject) => {
+        const startTime = new Date();
         if (i >= startNum) {
           if (i + rescanLimit < totalServers) {
             // scan through the end of the server list
