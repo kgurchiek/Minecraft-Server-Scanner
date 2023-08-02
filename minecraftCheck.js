@@ -85,7 +85,6 @@ function readIndex(fd, index, size) {
   return new Promise(async (resolve, reject) => {
     const newBuffer = Buffer.alloc(size);
     const buffer = await (new Promise((resolve, reject) => { fs.read(fd, newBuffer, 0, size, index, (err, bytesRead, buffer) => { resolve(buffer); }) }));
-    console.log(buffer);
   })
 }
 
