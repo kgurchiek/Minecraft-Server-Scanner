@@ -1,7 +1,7 @@
 const fs = require('fs');
 const net = require('net');
 const varint = require('varint');
-const { rescans, rescanLimit, rescanTimeout } = require('./config.json');
+const { rescans, rescanRate, rescanTimeout } = require('./config.json');
 
 function ping(ip, port, protocol, timeout) {
   return new Promise((resolve, reject) => {
@@ -122,12 +122,12 @@ module.exports = (ipsPath, newPath) => {
       return new Promise((resolve, reject) => {
         const startTime = new Date();
         if (i >= startNum) {
-          if (i + rescanLimit < totalServers) {
+          if (i + rescanRate < totalServers) {
             // scan through the end of the server list
-            for (var j = i; j < i + rescanLimit; j++) {
+            for (var j = i; j < i + rescanRate; j++) {
               pingServer(j)
             }
-            setTimeout(function() { scanBatch(i + rescanLimit, startNum) }, rescanTimeout);
+            setTimeout(function() { scanBatch(i + rescanRate, startNum) }, rescanTimeout);
           } else {
             // once the end of the list is reached, restart at the beginning
             for (var j = i; j < totalServers; j++) {
@@ -137,11 +137,11 @@ module.exports = (ipsPath, newPath) => {
           }
         } else {
           // scan up to the server that was started with (after restarting at the beginning)
-          if (i + rescanLimit < startNum) {
-            for (var j = i; j < i + rescanLimit; j++) {
+          if (i + rescanRate < startNum) {
+            for (var j = i; j < i + rescanRate; j++) {
               pingServer(j)
             }
-            setTimeout(function() { scanBatch(i + rescanLimit), startNum }, rescanTimeout);
+            setTimeout(function() { scanBatch(i + rescanRate), startNum }, rescanTimeout);
           } else {
             for (var j = i; j < startNum - i; j++) {
               pingServer(j)
@@ -156,8 +156,8 @@ module.exports = (ipsPath, newPath) => {
     }
 
     for (var i = 0; i < rescans; i++) {
-      var startNum = Math.floor(Math.random() * Math.floor(totalServers / rescanLimit)) * rescanLimit;
-      if (startNum == 0) startNum = rescanLimit;
+      var startNum = Math.floor(Math.random() * Math.floor(totalServers / rescanRate)) * rescanRate;
+      if (startNum == 0) startNum = rescanRate;
       await scanBatch(startNum, startNum);
       resolve();
     }
