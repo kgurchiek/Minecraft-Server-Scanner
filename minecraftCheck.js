@@ -94,6 +94,7 @@ module.exports = (ipsPath, newPath) => {
     const writeStream = fs.createWriteStream(newPath);
     const serverListFD = await (new Promise((resolve, reject) => { fs.open('./test', 'r', (err, fd) => { resolve(fd); }) }));
     const totalServers = fs.statSync(ipsPath).size / 6;
+    console.log(`Total servers: ${totalServers}`);
     const verified = [];
 
     function getServer(i) {
