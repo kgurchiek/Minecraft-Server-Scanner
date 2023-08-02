@@ -1,6 +1,7 @@
 const fs = require('fs');
 const { spawn } = require('child_process');
-const config = require('./config.json');
+const minecraftCheck = require('./minecraftCheck.js');
+const config = require('../config.json');
 
 async function fullPort(port) {
   const writeStream = fs.createWriteStream('./ips1');
@@ -58,7 +59,7 @@ async function fullPort(port) {
     if (code === 0) {
       console.log('Masscan finished.');
       writeStream.end();
-      //knownIps();
+      await minecraftCheck('./ips1', './ips1Filtered');
     } else {
       console.error(`Command exited with code ${code}`);
     }

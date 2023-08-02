@@ -85,6 +85,7 @@ async function known24s() {
     }).on('error', err => {
       throw err;
     }).on('end', () => {
+      console.log('Finished gathering last scan data.');
       includeWriteStream.close();
       clearInterval(logInterval);
       resolve();
@@ -173,6 +174,7 @@ async function knownIps() {
     }).on('error', err => {
       throw err;
     }).on('end', () => {
+      console.log('Finished gathering last scan data.');
       includeWriteStream.close();
       clearInterval(logInterval);
       resolve();
