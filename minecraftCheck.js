@@ -84,7 +84,7 @@ function ping(ip, port, protocol, timeout) {
 function readIndex(fd, index, size) {
   return new Promise(async (resolve, reject) => {
     const newBuffer = Buffer.alloc(size);
-    const buffer = await (new Promise((resolve, reject) => { fs.read(fd, newBuffer, 0, size, index, (err, bytesRead, buffer) => { resolve(buffer); }) }));
+    resolve(await (new Promise((resolve, reject) => { fs.read(fd, newBuffer, 0, size, index, (err, bytesRead, buffer) => { resolve(buffer); }) })));
   })
 }
 
@@ -97,8 +97,8 @@ module.exports = (ipsPath, newPath) => {
     const verified = [];
     var serversPinged = 0;
 
-    function getServer(i) {
-      const server = readIndex(serverListFD, i * 6, 6);
+    async function getServer(i) {
+      const server = await readIndex(serverListFD, i * 6, 6);
       const ip = `${server[0]}.${server[1]}.${server[2]}.${server[3]}`;
       const port = server[4] * 256 + server[5];
       return { ip, port }
@@ -108,12 +108,12 @@ module.exports = (ipsPath, newPath) => {
       serversPinged++;
       if (serversPinged % 20000 == 0) console.log(serversPinged);
       if (verified.includes(serverIndex)) return;
-      const server = getServer(serverIndex);
+      const server = await getServer(serverIndex);
       try {
         const response = await ping(server.ip, server.port, 0, rescanTimeout);
         if (typeof response === 'object') {
           verified.push(serverIndex);
-          writeStream.write(readIndex(serverListFD, index * 6, 5));
+          writeStream.write(await readIndex(serverListFD, index * 6, 5));
         }
       } catch (error) {}
     }
