@@ -113,7 +113,7 @@ module.exports = (ipsPath, newPath) => {
         const response = await ping(server.ip, server.port, 0, rescanTimeout);
         if (typeof response === 'object') {
           verified.push(serverIndex);
-          writeStream.write(await readIndex(serverListFD, index * 6, 5));
+          writeStream.write(await readIndex(serverListFD, serverIndex * 6, 5));
         }
       } catch (error) {}
     }
