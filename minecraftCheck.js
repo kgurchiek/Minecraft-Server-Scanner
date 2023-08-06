@@ -118,38 +118,41 @@ module.exports = (ipsPath, newPath) => {
       } catch (error) {}
     }
   
-    function scanBatch(i, startNum) {
+    function scanBatchPromise(i, startNum) {
       return new Promise((resolve, reject) => {
-        if (i >= startNum) {
-          if (i + rescanRate < totalServers) {
-            // scan through the end of the server list
-            for (var j = i; j < i + rescanRate; j++) {
-              pingServer(j)
+        function scanBatch(i, startNum) {
+          if (i >= startNum) {
+            if (i + rescanRate < totalServers) {
+              // scan through the end of the server list
+              for (var j = i; j < i + rescanRate; j++) {
+                pingServer(j)
+              }
+              setTimeout(function() { scanBatch(i + rescanRate, startNum) }, rescanTimeout);
+            } else {
+              // once the end of the list is reached, restart at the beginning
+              for (var j = i; j < totalServers; j++) {
+                pingServer(j)
+              }
+              setTimeout(function() { scanBatch(0, startNum) }, rescanTimeout);
             }
-            setTimeout(function() { scanBatch(i + rescanRate, startNum) }, rescanTimeout);
           } else {
-            // once the end of the list is reached, restart at the beginning
-            for (var j = i; j < totalServers; j++) {
-              pingServer(j)
+            // scan up to the server that was started with (after restarting at the beginning)
+            if (i + rescanRate < startNum) {
+              for (var j = i; j < i + rescanRate; j++) {
+                pingServer(j)
+              }
+              setTimeout(function() { scanBatch(i + rescanRate, startNum) }, rescanTimeout);
+            } else {
+              for (var j = i; j < startNum - i; j++) {
+                pingServer(j)
+              }
+      
+              writeStream.close();
+              resolve();
             }
-            setTimeout(function() { scanBatch(0), startNum }, rescanTimeout);
-          }
-        } else {
-          // scan up to the server that was started with (after restarting at the beginning)
-          if (i + rescanRate < startNum) {
-            for (var j = i; j < i + rescanRate; j++) {
-              pingServer(j)
-            }
-            setTimeout(function() { scanBatch(i + rescanRate), startNum }, rescanTimeout);
-          } else {
-            for (var j = i; j < startNum - i; j++) {
-              pingServer(j)
-            }
-    
-            writeStream.close();
-            resolve();
           }
         }
+        scanBatch(i, startNum);
       })
     }
 
@@ -158,7 +161,7 @@ module.exports = (ipsPath, newPath) => {
       var startNum = Math.floor(Math.random() * Math.floor(totalServers / rescanRate)) * rescanRate;
       if (startNum == 0) startNum = rescanRate;
       const startTime = new Date();
-      await scanBatch(startNum, startNum);
+      await scanBatchPromise(startNum, startNum);
       console.log(`Finished scan ${i + 1}/${rescans} in ${(new Date() - startTime) / 1000} seconds at ${new Date().toLocaleString("en-US", { timeZone: "America/Los_Angeles" })}.`);
       resolve();
     }
