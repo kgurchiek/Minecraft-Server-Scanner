@@ -4,12 +4,12 @@ const minecraftCheck = require('../minecraftCheck.js');
 const config = require('../config.json');
 
 async function known24s() {
-  fs.copyFileSync('../ips1', '../ips2Filtered');
+  fs.copyFileSync('../ips1Filtered', '../ips2Filtered');
   const writeStream = fs.createWriteStream('../ips2');
   const includeWriteStream = fs.createWriteStream('./includeFile.txt');
   await (new Promise((resolve, reject) => {
-    const size = fs.statSync('ips1').size;
-    const stream = fs.createReadStream('ips1');
+    const size = fs.statSync('ips1Filtered').size;
+    const stream = fs.createReadStream('ips1Filtered');
     var sizeWritten = 0;
     const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
     var lastData = null;
