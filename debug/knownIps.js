@@ -1,10 +1,11 @@
 const fs = require('fs');
 const { spawn } = require('child_process');
+const minecraftCheck = require('../minecraftCheck.js');
 const config = require('../config.json');
 
 async function knownIps() {
-  fs.copyFileSync('./ips2', './ips');
-  const writeStream = fs.createWriteStream('./ips');
+  fs.copyFileSync('../ips2', '../ips');
+  const writeStream = fs.createWriteStream('../ipsUnfiltered');
   const includeWriteStream = fs.createWriteStream('./includeFile.txt');
   await (new Promise((resolve, reject) => {
     const size = fs.statSync('ips2').size;
@@ -29,7 +30,7 @@ async function knownIps() {
     });
   }));
 
-  const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 0-25499,25701-65535 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ./exclude.conf -oJ -`]);
+  const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 0-25499,25701-65535 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ../exclude.conf -oJ -`]);
 
   var leftOver = null;
   childProcess.stdout.on('data', (data) => {
@@ -84,6 +85,7 @@ async function knownIps() {
       console.log('Masscan finished.');
       writeStream.end();
       fs.unlinkSync('./includeFile.txt');
+      await minecraftCheck('../ipsUnfiltered', '../ips');
       if (config.gitPush) {
         const childProcess = spawn('sh', ['-c', `git config --global user.email "${config.gitEmail}" ; git config --global user.name "${config.gitUser}" ; git add ips ; git commit -m "${Math.round((new Date()).getTime() / 1000)}" ; git push`]);
         childProcess.stdout.on('data', (data) => {

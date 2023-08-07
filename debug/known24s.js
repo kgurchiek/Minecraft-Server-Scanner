@@ -1,10 +1,11 @@
 const fs = require('fs');
 const { spawn } = require('child_process');
+const minecraftCheck = require('../minecraftCheck.js');
 const config = require('../config.json');
 
 async function known24s() {
-  fs.copyFileSync('./ips1', './ips2');
-  const writeStream = fs.createWriteStream('./ips2');
+  fs.copyFileSync('../ips1', '../ips2Filtered');
+  const writeStream = fs.createWriteStream('../ips2');
   const includeWriteStream = fs.createWriteStream('./includeFile.txt');
   await (new Promise((resolve, reject) => {
     const size = fs.statSync('ips1').size;
@@ -29,7 +30,7 @@ async function known24s() {
     });
   }));
   
-  const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 25500-25564,25566-25700 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ./exclude.conf -oJ -`]);
+  const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 25500-25564,25566-25700 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ../exclude.conf -oJ -`]);
 
   var leftOver = null;
   childProcess.stdout.on('data', (data) => {
@@ -83,7 +84,8 @@ async function known24s() {
     if (code === 0) {
       fs.unlinkSync('./includeFile.txt');
       writeStream.end();
-      console.log('Masscans finished');
+      console.log('Masscan finished');
+      await minecraftCheck('../ips2', '../ips2Filtered', 'a'); 
       //knownIps();
     } else {
       console.error(`Command exited with code ${code}`);
