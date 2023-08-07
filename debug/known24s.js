@@ -85,7 +85,7 @@ async function known24s() {
       fs.unlinkSync('./includeFile.txt');
       writeStream.end();
       console.log('Masscan finished');
-      await minecraftCheck('../ips2', '../ips2Filtered', 'a'); 
+      await minecraftCheck('./ips2', './ips2Filtered', 'a'); 
       //knownIps();
     } else {
       console.error(`Command exited with code ${code}`);

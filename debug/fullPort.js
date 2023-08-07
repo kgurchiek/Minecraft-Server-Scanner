@@ -4,7 +4,7 @@ const minecraftCheck = require('../minecraftCheck.js');
 const config = require('../config.json');
 
 async function fullPort(port) {
-  const writeStream = fs.createWriteStream('./ips1');
+  const writeStream = fs.createWriteStream('../ips1');
   const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p ${port} 0.0.0.0/0 --rate=${config.packetLimit}  --excludefile ./exclude.conf -oJ -`]);
 
   var leftOver = null;
@@ -59,7 +59,7 @@ async function fullPort(port) {
     if (code === 0) {
       console.log('Masscan finished.');
       writeStream.end();
-      await minecraftCheck('../ips1', '../ips1Filtered'); 
+      await minecraftCheck('./ips1', './ips1Filtered'); 
     } else {
       console.error(`Command exited with code ${code}`);
     }
