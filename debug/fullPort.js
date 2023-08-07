@@ -59,7 +59,7 @@ async function fullPort(port) {
     if (code === 0) {
       console.log('Masscan finished.');
       writeStream.end();
-      await minecraftCheck('./ips1', './ips1Filtered'); 
+      await minecraftCheck('../ips1', '../ips1Filtered'); 
     } else {
       console.error(`Command exited with code ${code}`);
     }
