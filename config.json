@@ -3,7 +3,7 @@
   "gitUser": "YOUR USERNAME HERE",
   "gitEmail": "YOUR EMAIL HERE",
   "packetLimit": 100000,
-  "rescans": 5,
+  "rescans": 3,
   "rescanRate": 2000,
   "rescanTimeout": 3000,
   "sudo": true,
