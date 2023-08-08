@@ -1,10 +1,11 @@
 const fs = require('fs');
+const path = require('path');
 const { spawn } = require('child_process');
 const minecraftCheck = require('../minecraftCheck.js');
 const config = require('../config.json');
 
 async function known24s() {
-  fs.copyFileSync('../ips1Filtered', '../ips2Filtered');
+  fs.copyFileSync(path.join(__dirname, '../ips1Filtered'), path.join(__dirname, '../ips2Filtered'));
   const writeStream = fs.createWriteStream('../ips2');
   const includeWriteStream = fs.createWriteStream('./includeFile.txt');
   await (new Promise((resolve, reject) => {

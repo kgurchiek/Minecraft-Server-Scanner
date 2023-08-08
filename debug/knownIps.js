@@ -4,7 +4,7 @@ const minecraftCheck = require('../minecraftCheck.js');
 const config = require('../config.json');
 
 async function knownIps() {
-  fs.copyFileSync('../ips2Filtered', '../ips');
+  fs.copyFileSync(path.join(__dirname, '../ips2Filtered'), path.join(__dirname, '../ips'));
   const writeStream = fs.createWriteStream('../ipsUnfiltered');
   const includeWriteStream = fs.createWriteStream('./includeFile.txt');
   await (new Promise((resolve, reject) => {
