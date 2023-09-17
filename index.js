@@ -4,7 +4,7 @@ const config = require('./config.json');
 
 async function fullPort(port) {
   const writeStream = fs.createWriteStream('./ips1');
-  const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p ${port} 0.0.0.0/0 --rate=${config.packetLimit} --excludefile ./exclude.conf -oJ -`]);
+  const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p ${port} 0.0.0.0/0 --rate=${config.packetLimit}  --excludefile ./exclude.conf -oJ -`]);
 
   var leftOver = null;
   childProcess.stdout.on('data', (data) => {
@@ -58,6 +58,7 @@ async function fullPort(port) {
     if (code === 0) {
       console.log('Masscan finished.');
       writeStream.end();
+      await minecraftCheck('./ips1', './ips1Filtered');
       known24s();
     } else {
       console.error(`Command exited with code ${code}`);
@@ -66,12 +67,12 @@ async function fullPort(port) {
 }
 
 async function known24s() {
-  fs.copyFileSync('./ips1', './ips2');
+  fs.copyFileSync(path.join(__dirname, './ips1Filtered'), path.join(__dirname, './ips2Filtered'));
   const writeStream = fs.createWriteStream('./ips2');
   const includeWriteStream = fs.createWriteStream('./includeFile.txt');
   await (new Promise((resolve, reject) => {
-    const size = fs.statSync('ips1').size;
-    const stream = fs.createReadStream('ips1');
+    const size = fs.statSync('ips1Filtered').size;
+    const stream = fs.createReadStream('ips1Filtered');
     var sizeWritten = 0;
     const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
     var lastData = null;
@@ -146,7 +147,8 @@ async function known24s() {
     if (code === 0) {
       fs.unlinkSync('./includeFile.txt');
       writeStream.end();
-      console.log('Masscans finished');
+      console.log('Masscan finished');
+      await minecraftCheck('./ips2', './ips2Filtered', 'a'); 
       knownIps();
     } else {
       console.error(`Command exited with code ${code}`);
