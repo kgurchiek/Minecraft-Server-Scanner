@@ -111,7 +111,7 @@ module.exports = (ipsPath, newPath, flag = 'w') => {
       const server = await getServer(serverIndex);
       try {
         const response = await ping(server.ip, server.port, 0, rescanTimeout);
-        if (typeof response === 'object') {
+        if (response != 'timeout') {
           verified.push(serverIndex);
           writeStream.write(await readIndex(serverListFD, serverIndex * 6, 5));
         }
