@@ -5,78 +5,43 @@ const { rescans, rescanRate, rescanTimeout } = require('./config.json');
 
 function ping(ip, port, protocol, timeout) {
   return new Promise((resolve, reject) => {
-    var jsonLength = 0;
-
-    setTimeout(function() {
+    setTimeout(() => {
       if (!hasResponded) {
-        resolve('timeout');
+        resolve(false);
         client.destroy();
       }
     }, timeout);
-
     var hasResponded = false;
-    var response = '';
 
     const client = new net.Socket();
     client.connect(port, ip, () => {
       const handshakePacket = Buffer.concat([
-      Buffer.from([0x00]), // packet ID
-      Buffer.from(varint.encode(protocol)), //protocol version
-      Buffer.from([ip.length]),
-      Buffer.from(ip, 'utf-8'), // server address
-      Buffer.from(new Uint16Array([port]).buffer).reverse(), // server port
-      Buffer.from([0x01]) // next state (2)
+        Buffer.from([0x00]), // packet ID
+        Buffer.from(varint.encode(protocol)), //protocol version
+        Buffer.from([ip.length]),
+        Buffer.from(ip, 'utf-8'), // server address
+        Buffer.from(new Uint16Array([port]).buffer).reverse(), // server port
+        Buffer.from([0x01]) // next state (2)
       ]);
       var packetLength = Buffer.alloc(1);
       packetLength.writeUInt8(handshakePacket.length);
       var buffer = Buffer.concat([packetLength, handshakePacket]);
       client.write(buffer);
 
-      const statusRequestPacket = Buffer.from([0x00]);
-      packetLength = Buffer.alloc(1);
-      packetLength.writeUInt8(statusRequestPacket.length);
-      buffer = Buffer.concat([packetLength, statusRequestPacket]);
-      client.write(buffer);
+      client.write(Buffer.from([0x01, 0x00])); // status request
     });
 
-    client.on('data', (data) => {
-      if (jsonLength == 0) {
-        try {
-          varint.decode(data);
-        } catch (error) {
-          //console.log(`varint error on ${ip}:${port} - ${error}`);
-          resolve('error');
-        }
-        const varint1Length = varint.decode.bytes;
-        try {
-          jsonLength = varint.decode(data.subarray(varint1Length + 1));
-        } catch (error) {
-          //console.log(`varint error on ${ip}:${port} - ${error}`);
-          resolve('error');
-        }
-        const varint2Length = varint.decode.bytes;
-        data = data.subarray(varint1Length + 1 + varint2Length);
-      }
-      response += data.toString();
-
-      if (Buffer.byteLength(response) >= jsonLength) {
-        client.destroy();
-        try {
-         resolve(JSON.parse(response));
-        } catch (error) {
-          //console.log(`Error on ${ip}:${port} - ${error}`);
-          resolve('error');
-        }
-        hasResponded = true;
-      }
+    client.on('data', () => {
+      client.destroy();
+      resolve(true);
     });
 
-    client.on('error', (err) => {
-      //console.error(`Error: ${err}`);
+    client.on('error', () => {
+      client.destroy();
     });
 
     client.on('close', () => {
-      //console.log('Connection closed');
+      client.destroy();
     });
   })
 }
@@ -110,8 +75,7 @@ module.exports = (ipsPath, newPath, flag = 'w') => {
       if (verified.includes(serverIndex)) return;
       const server = await getServer(serverIndex);
       try {
-        const response = await ping(server.ip, server.port, 0, rescanTimeout);
-        if (response != 'timeout') {
+        if (await ping(server.ip, server.port, 0, rescanTimeout)) {
           verified.push(serverIndex);
           writeStream.write(await readIndex(serverListFD, serverIndex * 6, 5));
         }
