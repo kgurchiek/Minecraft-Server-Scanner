@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { spawn } = require('child_process');
+const path = require('path');
 const minecraftCheck = require('./minecraftCheck.js');
 const config = require('./config.json');
 
