@@ -13,17 +13,22 @@ async function known24s() {
     const stream = fs.createReadStream('ips1Filtered');
     var sizeWritten = 0;
     const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
+    var known24s = {};
     var lastData = null;
     stream.on('data', (data) => {
       if (lastData != null) data = Buffer.concat([lastData, data]);
       for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
+        if (known24s[data.subarray(i, i + 3)] === null) continue;
+        known24s[data.subarray(i, i + 3)] = null;
         includeWriteStream.write(`${sizeWritten == 0 && i == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
       }
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
       sizeWritten += data.length;
     }).on('error', err => {
+      known24s = null;
       throw err;
     }).on('end', () => {
+      known24s = null;
       console.log('Finished gathering last scan data.');
       includeWriteStream.close();
       clearInterval(logInterval);

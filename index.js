@@ -77,17 +77,22 @@ async function known24s() {
     const stream = fs.createReadStream('ips1Filtered');
     var sizeWritten = 0;
     const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
+    var known24s = {};
     var lastData = null;
     stream.on('data', (data) => {
       if (lastData != null) data = Buffer.concat([lastData, data]);
       for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
+        if (known24s[data.subarray(i, i + 3)] === null) continue;
+        known24s[data.subarray(i, i + 3)] = null;
         includeWriteStream.write(`${sizeWritten == 0 && i == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.0/24`);
       }
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
       sizeWritten += data.length;
     }).on('error', err => {
+      known24s = null;
       throw err;
     }).on('end', () => {
+      known24s = null;
       console.log('Finished gathering last scan data.');
       includeWriteStream.close();
       clearInterval(logInterval);
@@ -159,25 +164,30 @@ async function known24s() {
 }
 
 async function knownIps() {
-  fs.copyFileSync(path.join(__dirname, '../ips2Filtered'), path.join(__dirname, '../ips'));
-  const writeStream = fs.createWriteStream('../ipsUnfiltered');
+  fs.copyFileSync(path.join(__dirname, './ips2Filtered'), path.join(__dirname, './ips'));
+  const writeStream = fs.createWriteStream('./ipsUnfiltered');
   const includeWriteStream = fs.createWriteStream('./includeFile.txt');
   await (new Promise((resolve, reject) => {
     const size = fs.statSync('ips2Filtered').size;
     const stream = fs.createReadStream('ips2Filtered');
     var sizeWritten = 0;
     const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
+    var knownIps = {};
     var lastData = null;
     stream.on('data', (data) => {
       if (lastData != null) data = Buffer.concat([lastData, data]);
       for (var i = 0; i < Math.floor(data.length / 6) * 6; i += 6) {
+        if (knownIps[data.subarray(i, i + 4)] === null) continue;
+        knownIps[data.subarray(i, i + 4)] = null;
         includeWriteStream.write(`${sizeWritten == 0 && i == 0 ? '' : ','}${data[i]}.${data[i + 1]}.${data[i + 2]}.${data[i + 3]}`);
       }
       lastData = data.length % 6 == 0 ? null : data.slice(Math.floor(data.length / 6) * 6);
       sizeWritten += data.length;
     }).on('error', err => {
+      knownIps = null;
       throw err;
     }).on('end', () => {
+      knownIps = null;
       console.log('Finished gathering last scan data.');
       includeWriteStream.close();
       clearInterval(logInterval);
@@ -185,7 +195,7 @@ async function knownIps() {
     });
   }));
 
-  const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 0-25499,25701-65535 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ../exclude.conf -oJ -`]);
+  const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 0-25499,25701-65535 --include-file includeFile.txt --rate=${config.packetLimit}  --excludefile ./exclude.conf -oJ -`]);
 
   var leftOver = null;
   childProcess.stdout.on('data', (data) => {
