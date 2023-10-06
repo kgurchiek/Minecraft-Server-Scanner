@@ -32,6 +32,11 @@ function ping(ip, port, protocol, timeout) {
 
     client.on('data', () => {
       client.destroy();
+      try {
+        if (JSON.parse(data).players === undefined) console.log(data);
+      } catch (error) {
+        //console.log(data);
+      }
       resolve(true);
     });
 
