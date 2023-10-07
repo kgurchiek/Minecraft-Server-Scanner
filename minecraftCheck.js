@@ -31,12 +31,13 @@ function ping(ip, port, protocol, timeout) {
     });
 
     client.on('data', (data) => {
-      client.destroy();
+      data = data.toString();
       try {
         if (JSON.parse(data).players === undefined) console.log(data);
       } catch (error) {
         //console.log(data);
       }
+      client.destroy();
       resolve(true);
     });
 
