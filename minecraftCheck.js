@@ -30,7 +30,7 @@ function ping(ip, port, protocol, timeout) {
       client.write(buffer);
     });
 
-    client.on('data', () => {
+    client.on('data', (data) => {
       client.destroy();
       try {
         if (JSON.parse(data).players === undefined) console.log(data);
