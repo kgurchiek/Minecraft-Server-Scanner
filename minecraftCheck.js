@@ -82,7 +82,15 @@ module.exports = (ipsPath, newPath, flag = 'w') => {
       try {
         if (await ping(server.ip, server.port, 0, rescanTimeout)) {
           verified.push(serverIndex);
-          writeStream.write(await readIndex(serverListFD, serverIndex * 6, 5));
+          const splitIP = server.ip.split('.');
+          writeStream.write(Buffer.from([
+            parseInt(splitIP[0]),
+            parseInt(splitIP[1]),
+            parseInt(splitIP[2]),
+            parseInt(splitIP[3]),
+            Math.floor(server.port / 256),
+            server.port % 256
+          ]));
         }
       } catch (error) {}
     }
