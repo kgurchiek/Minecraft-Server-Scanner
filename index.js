@@ -86,6 +86,7 @@ function fullPort(port) {
       writeStream.end();
       dupeCheck.clear();
       await minecraftCheck('./ips1', './ips1Filtered');
+      known24s();
     } else console.error(`Command exited with code ${code}`);
   });
 }
@@ -213,7 +214,7 @@ async function known24s() {
       }));
       writeStream.end();
       await minecraftCheck('./ips2', './ips2Filtered', 'a'); 
-      //knownIps();
+      knownIps();
     } else console.error(`Command exited with code ${code}`);
   });
 }
