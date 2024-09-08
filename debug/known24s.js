@@ -13,8 +13,8 @@ async function known24s() {
     const size = fs.statSync('ips1Filtered').size;
     const stream = fs.createReadStream('ips1Filtered');
     let sizeWritten = 0;
-    console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`);
-    const logInterval = setInterval(() => { console.log(`Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
+    console.log('[2] ', `Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`);
+    const logInterval = setInterval(() => { console.log('[2] ', `Gathering last scan data: ${sizeWritten}/${size} (${Math.floor(sizeWritten / size * 100)}%)`); }, 2000);
     const written24s = new Set();
     let lastData = null;
     stream.on('data', (data) => {
@@ -31,7 +31,7 @@ async function known24s() {
     }).on('end', () => {});
     async function finishCheck() {
       if (sizeWritten == size && queue.length == 0) {
-        console.log('Finished gathering last scan data.');
+        console.log('[2] ', 'Finished gathering last scan data.');
         includeWriteStream.close();
         clearInterval(logInterval);
         written24s.clear();
@@ -93,24 +93,24 @@ async function known24s() {
     }
   });
 
-  childProcess.stderr.on('data', (data) => console.log(data.toString()));
+  childProcess.stderr.on('data', (data) => console.log('[2] ', data.toString()));
 
   childProcess.on('close', async (code) => {
     if (code === 0) {
       fs.unlinkSync('./includeFile.txt');
-      console.log('Masscan finished');
+      console.log('[2] ', 'Masscan finished');
       await (new Promise(res => {
         const interval = setInterval(() => {
           if (queue.length == 0) {
             clearInterval(interval);
             res();
-          } else console.log(`Finishing write queue: ${queue.length} servers remanining.`);
+          } else console.log('[2] ', `Finishing write queue: ${queue.length} servers remanining.`);
         }, 300);
       }));
       writeStream.end();
       await minecraftCheck('./ips2', './ips2Filtered', 'a'); 
       //knownIps();
-    } else console.error(`Command exited with code ${code}`);
+    } else console.error('[2] ', `Command exited with code ${code}`);
   });
 }
 

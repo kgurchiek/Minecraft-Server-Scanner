@@ -52,23 +52,23 @@ function fullPort(port) {
     }
   });
 
-  childProcess.stderr.on('data', (data) => console.log(data.toString()));
+  childProcess.stderr.on('data', (data) => console.log('[1] ', data.toString()));
 
   childProcess.on('close', async (code) => {
     if (code === 0) {
-      console.log('Masscan finished.');
+      console.log('[1] ', 'Masscan finished.');
       await (new Promise(res => {
         const interval = setInterval(() => {
           if (queue.length == 0) {
             clearInterval(interval);
             res();
-          } else console.log(`Finishing write queue: ${queue.length} servers remanining.`);
+          } else console.log('[1] ', `Finishing write queue: ${queue.length} servers remanining.`);
         }, 300);
       }));
       writeStream.end();
       dupeCheck.clear();
       await minecraftCheck('./ips1', './ips1Filtered');
-    } else console.error(`Command exited with code ${code}`);
+    } else console.error'[1] ', (`Command exited with code ${code}`);
   });
 }
 
