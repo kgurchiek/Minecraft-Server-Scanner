@@ -1,11 +1,11 @@
 {
   "gitPush": false,
-  "gitUser": "Cornbread2100",
-  "gitEmail": "cornbread2100@cornbread2100.com",
-  "packetLimit": 1000000,
-  "rescans": 1,
+  "gitUser": "YOUR USERNAME HERE",
+  "gitEmail": "YOUR EMAIL HERE",
+  "packetLimit": 100000,
+  "rescans": 3,
   "rescanRate": 2000,
   "rescanTimeout": 3000,
-  "sudo": false,
+  "sudo": true,
   "repeat": false
 }
