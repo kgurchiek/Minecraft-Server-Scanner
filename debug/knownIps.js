@@ -60,15 +60,17 @@ async function knownIps() {
   
   const childProcess = spawn('sh', ['-c', `${config.sudo ? 'sudo ' : '' }masscan -p 1025-25499,25701-65535 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ -`]);
 
-  let leftOver = null;
+  let leftOver = '';
   childProcess.stdout.on('data', async (data) => {
     let string = data.toString();
-    if (leftOver == null) string = string.substring(string.indexOf('{'));
-    if (leftOver != null) string = leftOver + string;
-    for (let i = 0; i < string.split('\n,\n').length - 1; i++) {
-      let line = string.split('\n,\n')[i];
+    string = leftOver + string;
+    leftOver = '';
+    const items = string.split('\n,\n');
+    for (let i = 0; i < items.length; i++) {
+      let line = items[i];
+      if (line.startsWith('[\n')) line = line.substring(2);
+      if (line.endsWith('\n]\n')) line = line.substring(0, line.length - 3);
       try {
-        if (line.startsWith('[')) line = line.substring(1);
         const obj = JSON.parse(line);
         for (const port of obj.ports) {
           const splitIP = obj.ip.split('.');
@@ -80,33 +82,14 @@ async function knownIps() {
             Math.floor(port.port / 256),
             port.port % 256
           ]);
-          if (!dupeCheck.has(buffer.toString())) {
-            dupeCheck.add(buffer.toString());
+          if (!dupeCheck.has(buffer.toString('hex'))) {
+            dupeCheck.add(buffer.toString('hex'));
             queue.push(buffer);
           }
         }
-        try {
-          const obj = JSON.parse(string.split('\n,\n')[string.split('\n,\n').length - 1]);
-          for (const port of obj.ports) {
-            const splitIP = obj.ip.split('.');
-            const buffer = Buffer.from([
-              parseInt(splitIP[0]),
-              parseInt(splitIP[1]),
-              parseInt(splitIP[2]),
-              parseInt(splitIP[3]),
-              Math.floor(port.port / 256),
-              port.port % 256
-            ]);
-            if (!dupeCheck.has(buffer.toString())) {
-              dupeCheck.add(buffer.toString());
-              queue.push(buffer);
-            }
-          }
-          leftOver = '';
-        } catch (err) {
-          leftOver = string.split('\n,\n')[string.split('\n,\n').length - 1];
-        }
-      } catch (err) {}
+      } catch (err) {
+        leftOver = items[items.length - 1];
+      }
     }
   });
 
