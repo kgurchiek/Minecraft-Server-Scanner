@@ -86,7 +86,6 @@ module.exports = (ipsPath, newPath, flag = 'w') => {
   
     async function pingServer(serverIndex) {
       serversPinged++;
-      if (serversPinged % 20000 == 0) console.log(`${serversPinged}/${totalServers} (${Math.floor(serversPinged / totalServers * 100)}%)  Estimated ${Math.floor((totalServers - serversPinged) * (serversPinged / (new Date() - startTime)) / 60000)}:${(totalServers - serversPinged) * (serversPinged / (new Date() - startTime)) % 60000 < 10000 ? 0 : ''}${Math.floor(((totalServers - serversPinged) * (serversPinged / (new Date() - startTime)) % 60000) / 1000)} remaining`);
       if (dupeCheck.has(serverIndex)) return;
       const server = await getServer(serverIndex);
       try {
@@ -135,13 +134,25 @@ module.exports = (ipsPath, newPath, flag = 'w') => {
       })
     }
 
+    const progressLog = setInterval(() => {
+      const averageRate = Math.floor((new Date().getTime() - startTime) / 1000) / serversPinged;
+      let estimatedTime = Math.floor(totalServers - serversPinged) * averageRate;
+      const hours = Math.floor(estimatedTime / 3600);
+      estimatedTime %= 3600;
+      const minutes = Math.floor(estimatedTime / 60);
+      estimatedTime %= 60
+      const seconds = Math.floor(estimatedTime);
+      console.log(`${serversPinged}/${totalServers} (${Math.floor(serversPinged / totalServers * 100)}%)  Estimated ${hours > 0 ? `${hours}:${minutes < 10 ? 0 : ''}${minutes}` : minutes}:${seconds < 10 ? 0 : ''}${seconds} remaining.`)
+    }, 3000);
+
     for (var i = 0; i < rescans; i++) {
       serversPinged = 0;
 
       var startNum = Math.floor(Math.random() * Math.floor(totalServers / rescanRate)) * rescanRate;
       if (startNum == 0) startNum = rescanRate;
-      startTime = new Date();
+      startTime = new Date().getTime();
       await scanBatchPromise(startNum, startNum);
+      clearInterval(progressLog);
       console.log(`Finished scanning ${totalResults} servers on scan ${i + 1}/${rescans} in ${(new Date() - startTime) / 1000} seconds at ${new Date().toLocaleString()}.`);
     }
     await (new Promise(res => {
