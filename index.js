@@ -70,7 +70,7 @@ function fullPort(port) {
       dupeCheck.clear();
       await minecraftCheck('./ips1', './ips1Filtered', '[1] ');
       known24s();
-    } else console.error'[1] ', (`Command exited with code ${code}`);
+    } else console.error('[1] ', `Command exited with code ${code}`);
   });
 }
 
