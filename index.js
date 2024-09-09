@@ -295,7 +295,7 @@ async function knownIps() {
         const childProcess = spawn('sh', ['-c', `git config --global user.email "${config.gitEmail}" ; git config --global user.name "${config.gitUser}" ; git add ips ; git commit -m "${Math.round((new Date()).getTime() / 1000)}" ; git push`]);
         childProcess.stdout.on('data', (data) => console.log('[3] ', data.toString()));
 
-        childProcess.stderr.on('data', (data) => console.error(data.toString()));
+        childProcess.stderr.on('data', (data) => console.error('[3] ', data.toString()));
 
         childProcess.on('close', async (code) => {
           if (code != 0) console.error(`Command exited with code ${code}`);
