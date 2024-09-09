@@ -68,7 +68,7 @@ function fullPort(port) {
       }));
       writeStream.end();
       dupeCheck.clear();
-      await minecraftCheck('./ips1', './ips1Filtered');
+      await minecraftCheck('./ips1', './ips1Filtered', '[1] ');
       known24s();
     } else console.error('[1] ', `Command exited with code ${code}`);
   });
@@ -179,7 +179,7 @@ async function known24s() {
         }, 300);
       }));
       writeStream.end();
-      await minecraftCheck('./ips2', './ips2Filtered', 'a'); 
+      await minecraftCheck('./ips2', './ips2Filtered', '[2] ', 'a'); 
       knownIps();
     } else console.error('[2] ', `Command exited with code ${code}`);
   });
@@ -290,7 +290,7 @@ async function knownIps() {
   //       }, 300);
   //     }));
   //     writeStream.end();
-  //     await minecraftCheck('./ipsUnfiltered', './ips', 'a'); 
+  //     await minecraftCheck('./ipsUnfiltered', './ips', '[3] ', 'a'); 
       if (config.gitPush) {
         const childProcess = spawn('sh', ['-c', `git config --global user.email "${config.gitEmail}" ; git config --global user.name "${config.gitUser}" ; git add ips ; git commit -m "${Math.round((new Date()).getTime() / 1000)}" ; git push`]);
         childProcess.stdout.on('data', (data) => console.log('[3] ', data.toString()));

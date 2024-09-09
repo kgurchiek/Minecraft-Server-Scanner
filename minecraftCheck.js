@@ -55,14 +55,14 @@ function readIndex(fd, index, size) {
   })
 }
 
-module.exports = (ipsPath, newPath, flag = 'w') => {
+module.exports = (ipsPath, newPath, prefix = '', flag = 'w') => {
   return new Promise(async (resolve, reject) => {
     const dupeCheck = new Set();
     const queue = [];
     const writeStream = fs.createWriteStream(newPath, { flags: flag });
     const serverListFD = await (new Promise((resolve, reject) => { fs.open(ipsPath, 'r', (err, fd) => { resolve(fd); }) }));
     const totalServers = fs.statSync(ipsPath).size / 6;
-    console.log(`Total servers: ${totalServers}`);
+    console.log(`${prefix}Total servers: ${totalServers}`);
     var serversPinged = 0;
     var totalResults = 0;
     var startTime;
@@ -142,7 +142,7 @@ module.exports = (ipsPath, newPath, flag = 'w') => {
       const minutes = Math.floor(estimatedTime / 60);
       estimatedTime %= 60
       const seconds = Math.floor(estimatedTime);
-      console.log(`${serversPinged}/${totalServers} (${Math.floor(serversPinged / totalServers * 100)}%)  Estimated ${hours > 0 ? `${hours}:${minutes < 10 ? 0 : ''}${minutes}` : minutes}:${seconds < 10 ? 0 : ''}${seconds} remaining.`)
+      console.log(`${prefix}${serversPinged}/${totalServers} (${Math.floor(serversPinged / totalServers * 100)}%)  Estimated ${hours > 0 ? `${hours}:${minutes < 10 ? 0 : ''}${minutes}` : minutes}:${seconds < 10 ? 0 : ''}${seconds} remaining.`)
     }, 3000);
 
     for (var i = 0; i < rescans; i++) {
@@ -153,14 +153,14 @@ module.exports = (ipsPath, newPath, flag = 'w') => {
       startTime = new Date().getTime();
       await scanBatchPromise(startNum, startNum);
       clearInterval(progressLog);
-      console.log(`Finished scanning ${totalResults} servers on scan ${i + 1}/${rescans} in ${(new Date() - startTime) / 1000} seconds at ${new Date().toLocaleString()}.`);
+      console.log(`${prefix}Finished scanning ${totalResults} servers on scan ${i + 1}/${rescans} in ${(new Date() - startTime) / 1000} seconds at ${new Date().toLocaleString()}.`);
     }
     await (new Promise(res => {
       const interval = setInterval(() => {
         if (queue.length == 0) {
           clearInterval(interval);
           res();
-        } else console.log(`Finishing write queue: ${queue.length} servers remanining.`);
+        } else console.log(`${prefix}Finishing write queue: ${queue.length} servers remanining.`);
       }, 300);
     }));
     writeStream.close();

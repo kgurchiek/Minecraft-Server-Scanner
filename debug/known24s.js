@@ -108,7 +108,7 @@ async function known24s() {
         }, 300);
       }));
       writeStream.end();
-      await minecraftCheck('./ips2', './ips2Filtered', 'a'); 
+      await minecraftCheck('./ips2', './ips2Filtered', '[2] ', 'a'); 
       //knownIps();
     } else console.error('[2] ', `Command exited with code ${code}`);
   });

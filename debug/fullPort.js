@@ -67,7 +67,7 @@ function fullPort(port) {
       }));
       writeStream.end();
       dupeCheck.clear();
-      await minecraftCheck('./ips1', './ips1Filtered');
+      await minecraftCheck('./ips1', './ips1Filtered', '[1] ');
     } else console.error'[1] ', (`Command exited with code ${code}`);
   });
 }
