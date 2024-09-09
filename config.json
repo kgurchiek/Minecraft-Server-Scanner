@@ -6,6 +6,8 @@
   "rescans": 3,
   "rescanRate": 2000,
   "rescanTimeout": 3000,
+  "scan24s": true,
+  "scanAllPorts": false,
   "sudo": true,
   "repeat": false
 }

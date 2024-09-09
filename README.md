@@ -12,8 +12,8 @@ The ips will be saved in the `ips` file. Each 6 bytes represents a server, the f
 ## How It Works
 For each scan, first a typical masscan is run, finidng open tcp connections. Once a connection is found, it's pinged with Minecraft protocol to check if it's a Minecraft server. This is run in the following steps:
 1. A full 0.0.0.0/0 scan on port 25565
-2. For every ip found in step 1, a scan is run on that ip's /24 subnet on ports 25500-25700
-3. For every ip found in steps 1 and 2, a scan is run on every port.
+2. For every ip found in step 1, a scan is run on that ip's /24 subnet on ports 25500-25700 (enabled by the `scan24s` setting in `config.json`)
+3. For every ip found in steps 1 and 2, a scan is run on every port (enabled by the `scanAllPorts` setting in `config.json`)
 
 # Config
 **gitPush:** Whether or not to push the final result to the git repo
