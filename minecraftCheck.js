@@ -5,15 +5,13 @@ const { rescans, rescanRate, rescanTimeout } = require('./config.json');
 
 function ping(ip, port, protocol, timeout) {
   return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (!hasResponded) {
-        client.destroy();
-        resolve(false);
-      }
-    }, timeout);
-    var hasResponded = false;
-
     const client = new net.Socket();
+
+    const timeoutCheck = setTimeout(() => {
+      client.destroy();
+      resolve(false);
+    }, timeout);
+
     client.connect(port, ip, () => {
       const handshakePacket = Buffer.concat([
         Buffer.from([0x00]), // packet ID
@@ -32,13 +30,16 @@ function ping(ip, port, protocol, timeout) {
     });
 
     client.on('data', (data) => {
+      client.destroy();
+      clearTimeout(timeoutCheck);
       try {
         varint.decode(data);
-        if (data.slice(varint.decode.bytes)[0] == 0) {
-          client.destroy();
-          resolve(true);
-        }
-      } catch (e) {}
+        const packetId = data[varint.decode.bytes];
+        data = data.slice(varint.decode.bytes + 1);
+        varint.decode(data);
+        data = data.slice(varint.decode.bytes);
+        resolve(packetId == 0 && data.toString()[0] == '{')
+      } catch (e) { resolve(false) }
     });
 
     client.on('error', client.destroy );
