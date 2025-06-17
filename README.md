@@ -4,8 +4,9 @@ Uses [masscan](https://github.com/robertdavidgraham/masscan) to search for Minec
 ## Usage
 Note: You do not need to run this yourself. It's already being hosted, and the ips file is updated automatically
 - Install masscan from https://github.com/robertdavidgraham/masscan
-- Update config.json with your github username and email, and set the packet rate limit \(per second\). 100000 is recommended.
-- Run index.js \(the other js files are just for debugging functions, you can ignore them\)
+- Install necessary packages with `npm install`
+- Update config.json to your desired settings
+- Run index.js
 
 The ips will be saved in the `ips` file. Each 6 bytes represents a server, the first 4 being the ip, and the other 2 representing the port \(1st byte * 256 + 2nd byte\).
 
