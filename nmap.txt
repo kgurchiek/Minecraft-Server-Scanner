@@ -1,0 +1,4 @@
+# sends an unconnected ping to scan for bedrock servers (https://wiki.bedrock.dev/servers/raknet#unconnected-pings)
+# in this example both the client alive time and client GUID are set to 0
+udp 0-65535
+  "\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\xff\xff\x00\xfe\xfe\xfe\xfe\xfd\xfd\xfd\xfd\x12\x34\x56\x78\x00\x00\x00\x00\x00\x00\x00\x00"

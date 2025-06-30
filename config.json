@@ -10,5 +10,7 @@
   "scan24s": true,
   "scanAllPorts": false,
   "sudo": false,
-  "repeat": false
+  "repeat": false,
+  "java": true,
+  "bedrock": false
 }

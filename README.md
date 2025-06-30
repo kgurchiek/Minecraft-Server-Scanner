@@ -8,11 +8,11 @@ Note: You do not need to run this yourself. It's already being hosted, and the i
 - Update config.json to your desired settings
 - Run index.js
 
-The ips will be saved in the `ips` file. Each 6 bytes represents a server, the first 4 being the ip, and the other 2 representing the port \(1st byte * 256 + 2nd byte\).
+The ips will be saved in the `ips` file. Each 6 bytes represents a server, the first 4 being the ip, and the other 2 an unsigned integer for the port (big-endian).
 
 ## How It Works
-For each scan, first a typical masscan is run, finidng open tcp connections. Once a connection is found, it's pinged with Minecraft protocol to check if it's a Minecraft server. This is run in the following steps:
-1. A full 0.0.0.0/0 scan on port 25565
+For each scan, first a typical masscan is run, finidng open tcp connections. Once a connection is found, it's pinged with Minecraft protocol ([Server List Ping](https://minecraft.wiki/w/Java_Edition_protocol/Server_List_Ping) for Java Edtion, [Raknet Unconnected Ping](https://wiki.bedrock.dev/servers/raknet#unconnected-pings), for Bedrock Edition) to check if it's a Minecraft server. This is run in the following steps:
+1. A full 0.0.0.0/0 scan on port 25565 \(Java Edition\) or 19132 \(Bedrock Edition\)
 2. For every ip found in step 1, a scan is run on that ip's /24 subnet on ports 25500-25700 (enabled by the `scan24s` setting in `config.json`)
 3. For every ip found in steps 1 and 2, a scan is run on every port (enabled by the `scanAllPorts` setting in `config.json`)
 
@@ -20,6 +20,9 @@ For each scan, first a typical masscan is run, finidng open tcp connections. Onc
 **gitPush:** Whether or not to push the final result to the git repo
 **gitUser:** Your git username \(only used if `gitPush` is `true`\)
 **gitEmail":** Your git username \(only used if `gitPush` is `true`\)
-**packetLimit:** How many packets per second masscan will send \(100000 recommended\)
-**sudo:** Whether or not to run the masscan as sudo \(required for masscan to run, only disable if commands are sudo by default\)
+**packetLimit:** How many packets per second masscan will send
+**rescans:** How many times to check each result for a Minecraft server. Consider settings this to 2 or 3 if you experience significant packet loss.
+**sudo:** Whether or not to run the masscan as sudo \(required for masscan to run, only disable if you're logged in as root\)
 **repeat:** Whether or not to automatically run another scan once the scan finishes
+**java:** Whether or not to scan for Java Edition servers
+**bedrock:** Whether or not to scan for Bedrock Edition servers

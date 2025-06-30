@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "dgram": "^1.0.1",
     "varint": "^6.0.0"
   }
 }

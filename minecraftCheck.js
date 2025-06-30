@@ -1,5 +1,6 @@
 const fs = require('fs');
 const net = require('net');
+const dgram = require('dgram');
 const varint = require('varint');
 const { rescans, rescanRate, rescanTimeout } = require('./config.json');
 
@@ -14,7 +15,7 @@ function ping(ip, port, protocol, timeout) {
 
     client.connect(port, ip, () => {
       const handshakePacket = Buffer.concat([
-        Buffer.from([0x00]), // packet ID
+        Buffer.from([0x00]), // packet id
         Buffer.from(varint.encode(protocol)), //protocol version
         Buffer.from([ip.length]),
         Buffer.from(ip, 'utf-8'), // ip
@@ -48,20 +49,45 @@ function ping(ip, port, protocol, timeout) {
   })
 }
 
-function readIndex(fd, index, size) {
-  return new Promise(async (resolve, reject) => {
-    const newBuffer = Buffer.alloc(size);
-    resolve(await (new Promise((resolve, reject) => { fs.read(fd, newBuffer, 0, size, index, (err, bytesRead, buffer) => { resolve(buffer); }) })));
+function bedrockPing(ip, port, protocol, timeout) {
+  return new Promise((resolve, reject) => {
+    const timeoutCheck = setTimeout(() => {
+      client.close();
+      resolve(false);
+    }, timeout);
+    
+    const magic = Buffer.from('00ffff00fefefefefdfdfdfd12345678', 'hex');
+    const timeBuffer = Buffer.allocUnsafe(8);
+    timeBuffer.writeBigInt64BE(BigInt(Date.now()), 0);
+    const clientGUID = Buffer.allocUnsafe(8);
+    for (let i = 0; i < 8; i++) clientGUID.writeUInt8(Math.floor(Math.random() * 256), i);
+    const packet = Buffer.concat([Buffer.from([0x01]), timeBuffer, magic, clientGUID]);
+    const client = dgram.createSocket('udp4');
+    client.on('error', (err) => {
+      console.log(`Error: ${err}`);
+      client.close();
+    });
+    client.send(packet, port, ip, (err) => {
+      if (err) {
+        console.log('Error sending packet:', err);
+        client.close();
+      }
+    });
+    client.on('message', (message, remote) => {
+      client.close();
+      clearTimeout(timeoutCheck);
+      resolve(message[0] == 0x1c);
+    });
   })
 }
 
-module.exports = (ipsPath, newPath, prefix = '', flag = 'w') => {
+module.exports = (ipsPath, newPath, prefix = '', game = 'java', flag = 'w') => {
   return new Promise(async (resolve, reject) => {
     const dupeCheck = new Set();
     const queue = [];
     const writeStream = fs.createWriteStream(newPath, { flags: flag });
-    const serverListFD = await (new Promise((resolve, reject) => { fs.open(ipsPath, 'r', (err, fd) => { resolve(fd); }) }));
-    const totalServers = fs.statSync(ipsPath).size / 6;
+    let serverList = fs.readFileSync(ipsPath);
+    const totalServers = Math.floor(serverList.length / 6);
     console.log(prefix, `Total servers: ${totalServers}`);
     var serversPinged = 0;
     var totalResults = 0;
@@ -78,18 +104,18 @@ module.exports = (ipsPath, newPath, prefix = '', flag = 'w') => {
     write();
 
     async function getServer(i) {
-      const server = await readIndex(serverListFD, i * 6, 6);
+      const server = serverList.slice(i * 6, i * 6 + 6);
       const ip = `${server[0]}.${server[1]}.${server[2]}.${server[3]}`;
       const port = server[4] * 256 + server[5];
       return { ip, port }
     }
-  
+
     async function pingServer(serverIndex) {
       serversPinged++;
       if (dupeCheck.has(serverIndex)) return;
       const server = await getServer(serverIndex);
       try {
-        if (await ping(server.ip, server.port, 0, rescanTimeout)) {
+        if (await (game == 'java' ? ping : bedrockPing)(server.ip, server.port, 0, rescanTimeout)) {
           totalResults++;
           dupeCheck.add(serverIndex);
           const splitIP = server.ip.split('.');
@@ -104,54 +130,31 @@ module.exports = (ipsPath, newPath, prefix = '', flag = 'w') => {
         }
       } catch (error) {}
     }
-  
-    function scanBatchPromise(i, startNum) {
-      return new Promise((resolve, reject) => {
-        async function scanBatch(i, startNum) {
-          if (i >= startNum) {
-            if (i + rescanRate < totalServers) {
-              // scan through the end of the server list
-              for (var j = i; j < i + rescanRate; j++) pingServer(j);
-              setTimeout(() => { scanBatch(i + rescanRate, startNum) }, rescanTimeout);
-            } else {
-              // once the end of the list is reached, restart at the beginning
-              for (var j = i; j < totalServers; j++) pingServer(j);
-              setTimeout(() => { scanBatch(0, startNum) }, rescanTimeout);
-            }
-          } else {
-            // scan up to the server that was started with (after restarting at the beginning)
-            if (i + rescanRate < startNum) {
-              for (var j = i; j < i + rescanRate; j++) pingServer(j);
-              setTimeout(() => { scanBatch(i + rescanRate, startNum) }, rescanTimeout);
-            } else {
-              for (var j = i; j < startNum - i; j++) pingServer(j);
-
-              resolve();
-            }
-          }
-        }
-        scanBatch(i, startNum);
-      })
-    }
-
-    const progressLog = setInterval(() => {
-      const averageRate = Math.floor((new Date().getTime() - startTime) / 1000) / serversPinged;
-      let estimatedTime = Math.floor(totalServers - serversPinged) * averageRate;
-      const hours = Math.floor(estimatedTime / 3600);
-      estimatedTime %= 3600;
-      const minutes = Math.floor(estimatedTime / 60);
-      estimatedTime %= 60
-      const seconds = Math.floor(estimatedTime);
-      console.log(prefix, `${serversPinged}/${totalServers} (${Math.floor(serversPinged / totalServers * 100)}%)  Results: ${totalResults}  Estimated ${hours > 0 ? `${hours}:${minutes < 10 ? 0 : ''}${minutes}` : minutes}:${seconds < 10 ? 0 : ''}${seconds} remaining.`)
-    }, 3000);
 
     for (var i = 0; i < rescans; i++) {
+      const progressLog = setInterval(() => {
+        const averageRate = Math.floor((new Date().getTime() - startTime) / 1000) / serversPinged;
+        let estimatedTime = Math.floor(totalServers - serversPinged) * averageRate;
+        const hours = Math.floor(estimatedTime / 3600);
+        estimatedTime %= 3600;
+        const minutes = Math.floor(estimatedTime / 60);
+        estimatedTime %= 60
+        const seconds = Math.floor(estimatedTime);
+        console.log(prefix, `${serversPinged}/${totalServers} (${Math.floor(serversPinged / totalServers * 100)}%)  Results: ${totalResults}  Estimated ${hours > 0 ? `${hours}:${minutes < 10 ? 0 : ''}${minutes}` : minutes}:${seconds < 10 ? 0 : ''}${seconds} remaining.`)
+      }, 3000);
+
       serversPinged = 0;
 
-      var startNum = Math.floor(Math.random() * Math.floor(totalServers / rescanRate)) * rescanRate;
-      if (startNum == 0) startNum = rescanRate;
+      var startNum = Math.floor(Math.random() * totalServers) * 6;
+      serverList = Buffer.concat([serverList.slice(startNum), serverList.slice(0, startNum)]);
+      //if (startNum == 0) startNum = rescanRate;
       startTime = new Date().getTime();
-      await scanBatchPromise(startNum, startNum);
+      //await scanBatchPromise(startNum, startNum);
+      for (let j = 0; j < totalServers; j++) {
+        pingServer(j);
+        await new Promise(res => setTimeout(res, (1 / rescanRate) * 1000));
+      }
+      await new Promise(res => setTimeout(res, rescanTimeout));
       clearInterval(progressLog);
       console.log(prefix, `Finished scanning ${totalResults} servers on scan ${i + 1}/${rescans} in ${(new Date() - startTime) / 1000} seconds at ${new Date().toLocaleString()}.`);
     }

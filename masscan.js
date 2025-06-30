@@ -2,7 +2,7 @@ const fs = require('fs');
 const { spawn } = require('child_process');
 
 module.exports = (command, output, prefix) => {
-    const dupeCheck = new Map();
+    const dupeCheck = new Set();
     const queue = [];
     const writeStream = fs.createWriteStream(output);
     return new Promise(res => {
@@ -40,8 +40,8 @@ module.exports = (command, output, prefix) => {
                             Math.floor(port.port / 256),
                             port.port % 256
                         ]);
-                        if (!dupeCheck.get(buffer.toString('hex'))) {
-                            dupeCheck.set(buffer.toString('hex'), true);
+                        if (!dupeCheck.has(buffer.toString('hex'))) {
+                            dupeCheck.add(buffer.toString('hex'));
                             queue.push(buffer);
                         }
                     }
