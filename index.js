@@ -63,7 +63,7 @@ async function known24s() {
     await include24s('ips1');
     if (config.java) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p 25500-25564,25566-25700 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ -`, 'ips2Unfiltered', '[2] [Java]');
     await include24s('ips1_b');
-    if (config.bedrock) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p U:25500-25564,U:25566-25700 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ - --nmap-payloads nmap.txt`, 'ips2Unfiltered_b', '[2] [Bedrock]');
+    if (config.bedrock) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p U:19100-19131,U:19133-19300 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ - --nmap-payloads nmap.txt`, 'ips2Unfiltered_b', '[2] [Bedrock]');
     if (config.java) await minecraftCheck('ips2Unfiltered', 'ips2', '[2] [Java]', 'java', 'a');
     if (config.bedrock) await minecraftCheck('ips2Unfiltered_b', 'ips2_b', '[2] [Bedrock]', 'bedrock', 'a');
   }
