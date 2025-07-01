@@ -1,6 +1,6 @@
 const fs = require('fs');
 const { spawn } = require('child_process');
-const path = require('path');
+const simpleGit = require('simple-git');
 const minecraftCheck = require('./minecraftCheck.js');
 const masscan = require('./masscan.js');
 const config = require('./config.json');
@@ -122,20 +122,24 @@ async function knownIps() {
     if (config.java) await minecraftCheck('ipsUnfiltered', 'ips', '[3] [Java]', 'java', 'a');
     if (config.bedrock) await minecraftCheck('ipsUnfiltered_b', 'ips', '[3] [Bedrock]', 'bedrock', 'a');
     
-    if (config.gitPush) {
-      await new Promise(res => {
-        const childProcess = spawn('sh', ['-c', `git config --global user.email "${config.gitEmail}" ; git config --global user.name "${config.gitUser}" ; git add ips ; git commit -m "${Math.round((new Date()).getTime() / 1000)}" ; git push`]);
-        childProcess.stdout.on('data', (data) => console.log('[3]', data.toString()));
-
-        childProcess.stderr.on('data', (data) => console.error('[3]', data.toString()));
-
-        childProcess.on('close', async (code) => {
-          if (code != 0) console.error(`Command exited with code ${code}`);
-          res();
-        });
-      });
+    if (config.git.push) {
+      try {
+        let git = new simpleGit();
+        await git.addConfig('user.name', config.git.username);
+        await git.addConfig('user.email', config.git.email);
+        if ((await git.getRemotes()).find(a => git.name == 'origin')) await git.removeRemote('origin');
+        await git.addRemote('origin', config.git.url);
+        if (config.java) await git.add('ips');
+        if (config.bedrock) await git.add('ips_b');
+        await git.commit(String(Math.round((new Date()).getTime() / 1000)));
+        await git.push('origin', main);
+        console.log('Pushed to repo.');
+      } catch (err) {
+        console.log('Error pushing to repo:', err);
+      }
     }
     if (config.repeat) scanPort();
+    else process.exit();
   }
 }
 

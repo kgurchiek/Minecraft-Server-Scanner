@@ -1,16 +1,20 @@
 {
-  "gitPush": false,
-  "gitUser": "YOUR USERNAME HERE",
-  "gitEmail": "YOUR EMAIL HERE",
-  "packetLimit": 1000000,
-  "rescans": 1,
-  "rescanRate": 3000,
-  "rescanTimeout": 5000,
-  "scanPort": true,
-  "scan24s": true,
-  "scanAllPorts": false,
-  "sudo": false,
-  "repeat": false,
-  "java": true,
-  "bedrock": false
+    "git": {
+        "push": false,
+        "username": "",
+        "email": "",
+        "url": "https://token@github.com/user/repo.git",
+        "branch": "main"
+    },
+    "packetLimit": 1000000,
+    "rescans": 1,
+    "rescanRate": 3000,
+    "rescanTimeout": 5000,
+    "scanPort": true,
+    "scan24s": true,
+    "scanAllPorts": false,
+    "sudo": false,
+    "repeat": false,
+    "java": true,
+    "bedrock": false
 }
