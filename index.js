@@ -60,12 +60,16 @@ async function known24s() {
       finishCheck();
     });
     
-    await include24s('ips1');
-    if (config.java) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p 25500-25564,25566-25700 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ -`, 'ips2Unfiltered', '[2] [Java]');
-    await include24s('ips1_b');
-    if (config.bedrock) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p U:19100-19131,U:19133-19300 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ - --nmap-payloads nmap.txt`, 'ips2Unfiltered_b', '[2] [Bedrock]');
-    if (config.java) await minecraftCheck('ips2Unfiltered', 'ips2', '[2] [Java]', 'java', 'a');
-    if (config.bedrock) await minecraftCheck('ips2Unfiltered_b', 'ips2_b', '[2] [Bedrock]', 'bedrock', 'a');
+    if (config.java) {
+      await include24s('ips1');
+      await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p 25500-25564,25566-25700 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ -`, 'ips2Unfiltered', '[2] [Java]');
+      await minecraftCheck('ips2Unfiltered', 'ips2', '[2] [Java]', 'java', 'a');
+    }
+    if (config.bedrock) {
+      await include24s('ips1_b');
+      await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p U:19100-19131,U:19133-19300 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ - --nmap-payloads nmap.txt`, 'ips2Unfiltered_b', '[2] [Bedrock]');
+      await minecraftCheck('ips2Unfiltered_b', 'ips2_b', '[2] [Bedrock]', 'bedrock', 'a');
+    }
   }
 
   knownIps();
@@ -115,12 +119,16 @@ async function knownIps() {
       finishCheck();
     });
     
-    await includeIps('ips2');
-    if (config.java) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p 1024-25499,25701-65535 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ -`, 'ipsUnfiltered', '[3] [Java]');
-    await includeIps('ips2_b');
-    if (config.bedrock) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p U:1024-25499,U:25701-65535 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ - --nmap-payloads nmap.txt`, 'ipsUnfiltered_b', '[3] [Bedrock]');
-    if (config.java) await minecraftCheck('ipsUnfiltered', 'ips', '[3] [Java]', 'java', 'a');
-    if (config.bedrock) await minecraftCheck('ipsUnfiltered_b', 'ips_b', '[3] [Bedrock]', 'bedrock', 'a');
+    if (config.java) {
+      await includeIps('ips2');
+      await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p 1024-25499,25701-65535 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ -`, 'ipsUnfiltered', '[3] [Java]');
+      await minecraftCheck('ipsUnfiltered', 'ips', '[3] [Java]', 'java', 'a');
+    }
+    if (config.bedrock) {
+      await includeIps('ips2_b');
+      await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p U:1024-25499,U:25701-65535 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ - --nmap-payloads nmap.txt`, 'ipsUnfiltered_b', '[3] [Bedrock]');
+      await minecraftCheck('ipsUnfiltered_b', 'ips_b', '[3] [Bedrock]', 'bedrock', 'a');
+    }
   }
 
   if (config.git.push) {
