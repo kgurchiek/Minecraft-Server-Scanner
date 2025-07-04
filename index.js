@@ -133,7 +133,7 @@ async function knownIps() {
       if (config.java) await git.add('ips');
       if (config.bedrock) await git.add('ips_b');
       await git.commit(String(Math.round((new Date()).getTime() / 1000)));
-      await git.push('origin', main);
+      await git.push('origin', config.git.branch);
       console.log('Pushed to repo.');
     } catch (err) {
       console.log('Error pushing to repo:', err);
