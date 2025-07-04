@@ -128,7 +128,7 @@ async function knownIps() {
       let git = new simpleGit();
       await git.addConfig('user.name', config.git.username);
       await git.addConfig('user.email', config.git.email);
-      if ((await git.getRemotes()).find(a => git.name == 'origin')) await git.removeRemote('origin');
+      if ((await git.getRemotes()).find(a => a.name == 'origin')) await git.removeRemote('origin');
       await git.addRemote('origin', config.git.url);
       if (config.java) await git.add('ips');
       if (config.bedrock) await git.add('ips_b');
