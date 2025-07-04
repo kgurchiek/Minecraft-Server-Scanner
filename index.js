@@ -120,7 +120,7 @@ async function knownIps() {
     await includeIps('ips2_b');
     if (config.bedrock) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p U:1024-25499,U:25701-65535 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ - --nmap-payloads nmap.txt`, 'ipsUnfiltered_b', '[3] [Bedrock]');
     if (config.java) await minecraftCheck('ipsUnfiltered', 'ips', '[3] [Java]', 'java', 'a');
-    if (config.bedrock) await minecraftCheck('ipsUnfiltered_b', 'ips', '[3] [Bedrock]', 'bedrock', 'a');
+    if (config.bedrock) await minecraftCheck('ipsUnfiltered_b', 'ips_b', '[3] [Bedrock]', 'bedrock', 'a');
     
     if (config.git.push) {
       try {
