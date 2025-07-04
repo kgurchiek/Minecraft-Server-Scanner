@@ -121,26 +121,26 @@ async function knownIps() {
     if (config.bedrock) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p U:1024-25499,U:25701-65535 --include-file includeFile.txt --rate=${config.packetLimit} --excludefile exclude.conf -oJ - --nmap-payloads nmap.txt`, 'ipsUnfiltered_b', '[3] [Bedrock]');
     if (config.java) await minecraftCheck('ipsUnfiltered', 'ips', '[3] [Java]', 'java', 'a');
     if (config.bedrock) await minecraftCheck('ipsUnfiltered_b', 'ips_b', '[3] [Bedrock]', 'bedrock', 'a');
-    
-    if (config.git.push) {
-      try {
-        let git = new simpleGit();
-        await git.addConfig('user.name', config.git.username);
-        await git.addConfig('user.email', config.git.email);
-        if ((await git.getRemotes()).find(a => git.name == 'origin')) await git.removeRemote('origin');
-        await git.addRemote('origin', config.git.url);
-        if (config.java) await git.add('ips');
-        if (config.bedrock) await git.add('ips_b');
-        await git.commit(String(Math.round((new Date()).getTime() / 1000)));
-        await git.push('origin', main);
-        console.log('Pushed to repo.');
-      } catch (err) {
-        console.log('Error pushing to repo:', err);
-      }
-    }
-    if (config.repeat) scanPort();
-    else process.exit();
   }
+
+  if (config.git.push) {
+    try {
+      let git = new simpleGit();
+      await git.addConfig('user.name', config.git.username);
+      await git.addConfig('user.email', config.git.email);
+      if ((await git.getRemotes()).find(a => git.name == 'origin')) await git.removeRemote('origin');
+      await git.addRemote('origin', config.git.url);
+      if (config.java) await git.add('ips');
+      if (config.bedrock) await git.add('ips_b');
+      await git.commit(String(Math.round((new Date()).getTime() / 1000)));
+      await git.push('origin', main);
+      console.log('Pushed to repo.');
+    } catch (err) {
+      console.log('Error pushing to repo:', err);
+    }
+  }
+  if (config.repeat) scanPort();
+  else process.exit();
 }
 
 scanPort();
