@@ -7,22 +7,26 @@ const config = require('./config.json');
 
 async function scanPort() {
   if (config.scanPort) {
-    if (config.java) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p 25565 0.0.0.0/0 --rate=${config.packetLimit} --excludefile ./exclude.conf -oJ -`, 'ips1Unfiltered', '[1] [Java]');
-    if (config.bedrock) await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p U:19132 0.0.0.0/0 --rate=${config.packetLimit} --excludefile ./exclude.conf -oJ - --nmap-payloads nmap.txt`, 'ips1Unfiltered_b', '[1] [Bedrock]');
-    if (config.java) await minecraftCheck('ips1Unfiltered', 'ips1', '[1] [Java]');
-    if (config.bedrock) await minecraftCheck('ips1Unfiltered_b', 'ips1_b', '[1] [Bedrock]', 'bedrock');
+    if (config.java) {
+      await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p 25565 0.0.0.0/0 --rate=${config.packetLimit} --excludefile exclude.conf -oJ -`, 'ips1Unfiltered', '[1] [Java]');
+      await minecraftCheck('ips1Unfiltered', 'ips1', '[1] [Java]');
+    }
+    if (config.bedrock) {
+      await masscan(`${config.sudo ? 'sudo ' : '' }masscan -p U:19132 0.0.0.0/0 --rate=${config.packetLimit} --excludefile exclude.conf -oJ - --nmap-payloads nmap.txt`, 'ips1Unfiltered_b', '[1] [Bedrock]');
+      await minecraftCheck('ips1Unfiltered_b', 'ips1_b', '[1] [Bedrock]', 'bedrock');
+    }
   }
 
   known24s();
 }
 
 async function known24s() {
-  if (config.java) fs.copyFileSync('./ips1', './ips2');
-  if (config.bedrock) fs.copyFileSync('./ips1_b', './ips2_b');
+  if (config.java) fs.copyFileSync('ips1', 'ips2');
+  if (config.bedrock) fs.copyFileSync('ips1_b', 'ips2_b');
 
   if (config.scan24s) {
     const include24s = (file) => new Promise((resolve, reject) => {
-      const includeWriteStream = fs.createWriteStream('./includeFile.txt');
+      const includeWriteStream = fs.createWriteStream('includeFile.txt');
       const size = fs.statSync(file).size;
       const stream = fs.createReadStream(file);
       let sizeWritten = 0;
@@ -76,11 +80,11 @@ async function known24s() {
 }
 
 async function knownIps() {
-  if (config.java) fs.copyFileSync('./ips2', './ips');
-  if (config.bedrock) fs.copyFileSync('./ips2_b', './ips_b');
+  if (config.java) fs.copyFileSync('ips2', 'ips');
+  if (config.bedrock) fs.copyFileSync('ips2_b', 'ips_b');
 
   if (config.scanAllPorts) {
-    const includeWriteStream = fs.createWriteStream('./includeFile.txt');
+    const includeWriteStream = fs.createWriteStream('includeFile.txt');
     const includeIps = (file) => new Promise((resolve, reject) => {
       const size = fs.statSync(file).size;
       const stream = fs.createReadStream(file);
@@ -147,8 +151,7 @@ async function knownIps() {
       console.log('Error pushing to repo:', err);
     }
   }
-  if (config.repeat) scanPort();
-  else process.exit();
+  process.exit();
 }
 
 scanPort();

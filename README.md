@@ -31,6 +31,5 @@ For each scan, first a typical masscan is run, finidng open tcp connections. Onc
 - **scan24s:** Whether or not to scan the /24 subnets on nearby ports on the results of the previous scan \(optional, third step can still run even if this is never done\)
 - **scanAllPorts:** Whether or not to scan ports 1024-65535 on the results of the previous scans
 - **sudo:** Whether or not to run the masscan as sudo \(required for masscan to run, only disable if you're logged in as root\)
-- **repeat:** Whether or not to automatically run another scan once the scan finishes
 - **java:** Whether or not to scan for Java Edition servers
 - **bedrock:** Whether or not to scan for Bedrock Edition servers
