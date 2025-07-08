@@ -76,6 +76,18 @@ function bedrockPing(ip, port, protocol, timeout) {
     client.on('message', (message, remote) => {
       client.close();
       clearTimeout(timeoutCheck);
+      try {
+        if (message[0] != 0x1c || message.length < 35) return resolve(false);
+        message = message.slice(33);
+        let len = message.slice(0, 2).readUint16BE();
+        if (message.length < len + 2) return resolve(false);
+        let edition = message.slice(2, len + 2).toString().split(';')[0];
+        if (!['MCPE', 'MCEE'].includes(edition)) return resolve(false);
+        resolve(true);
+      } catch (err) {
+        console.log(err)
+        resolve(false);
+      }
       resolve(message[0] == 0x1c);
     });
   })
