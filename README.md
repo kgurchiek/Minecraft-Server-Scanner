@@ -16,7 +16,7 @@ For each scan, first a typical masscan is run, finidng open tcp connections. Onc
 2. For every ip found in step 1, a scan is run on that ip's /24 subnet on ports 25500-25700 (enabled by the `scan24s` setting in `config.json`)
 3. For every ip found in steps 1 and 2, a scan is run on ports 1024-65535 (enabled by the `scanAllPorts` setting in `config.json`)
 
-# Config
+## Config
 - **git** 
   - **push: ** Whether or not to push the final result to a git repo
   - **username:** Your git username
