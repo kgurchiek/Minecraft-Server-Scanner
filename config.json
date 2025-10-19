@@ -10,9 +10,27 @@
     "rescans": 1,
     "rescanRate": 3000,
     "rescanTimeout": 5000,
-    "scanPort": true,
-    "scan24s": true,
-    "scanAllPorts": false,
+    "scanPort": {
+        "enabled": true,
+        "range": {
+            "java": "0.0.0.0/0",
+            "bedrock": "0.0.0.0/0"
+        },
+        "port": {
+            "java": 25565,
+            "bedrock": 19132
+        }
+    },
+    "scan24s": {
+        "enabled": true,
+        "portRange": {
+            "java": 200,
+            "bedrock": 200
+        }
+    },
+    "scanAllPorts": {
+        "enabled": false
+    },
     "sudo": false,
     "java": true,
     "bedrock": false

@@ -23,11 +23,12 @@ module.exports = (command, output, prefix) => {
             let string = data.toString();
             string = leftOver + string;
             leftOver = '';
-            const items = string.split('\n,\n');
+            const items = string.split(',\n');
             for (let i = 0; i < items.length; i++) {
                 let line = items[i];
                 if (line.startsWith('[\n')) line = line.substring(2);
                 if (line.endsWith('\n]\n')) line = line.substring(0, line.length - 3);
+                line = line.trim();
                 try {
                     const obj = JSON.parse(line);
                     for (const port of obj.ports) {
