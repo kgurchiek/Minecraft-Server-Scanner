@@ -18,7 +18,7 @@ For each scan, first a typical masscan is run, finidng open tcp connections. Onc
 
 ## Config
 - **git** 
-  - **push: ** Whether or not to push the final result to a git repo
+  - **push:** Whether or not to push the final result to a git repo
   - **username:** Your git username
   - **email:** Your git email
   - **url:** URl of the git repo, include a token for authentication
